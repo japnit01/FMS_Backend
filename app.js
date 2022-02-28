@@ -1,4 +1,4 @@
-const connecttomongo = require('./models/db');
+const connecttomongo = require('./db');
 const express = require('express');
 const cors = require('cors')
 
