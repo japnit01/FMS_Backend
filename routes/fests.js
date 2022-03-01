@@ -2,11 +2,14 @@ const express = require("express");
 const router = express.Router();
 const { body, validationResult } = require('express-validator')
 const Fest = require('../models/fest')
+let Competitions = require('../models/competition');
 
 router.get('/fetchfest',async (req,res)=>{
     const fests = await Fest.find();
     res.json(fests);
 });
+
+
 
 router.post('/addfest',async (req,res)=>{
     const {name,description,organisation,startdate,enddate,city,state} = req.body;
