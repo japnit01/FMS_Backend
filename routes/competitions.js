@@ -2,6 +2,8 @@ let express = require('express');
 let router = express.Router();
 let {body, validationResult} = require('express-validator');
 let Competitions = require('../models/competition');
+let Users = require('../models/user');
+let requireLogin = require('../middlewares/requireLogin');
 
 router.get('/:festid/getCompetitions',async(req,res)=> {
     let allCompetitions = await Competitions.find({fest_id: req.params.festid});
@@ -75,6 +77,14 @@ router.delete('/:festid/delete-competition/:compid',async(req,res)=> {
     })
 
     res.status(200).json({'deleted-record':deletedRecord});
+});
+
+router.post('/register-event/:compid',requireLogin,async(req,res) => {
+    let record = await Users.findByIdAndUpdate(req.session.user_id,{$push : {registered_events : req.params.compid}}, { new: true}).catch(err => {
+        return res.status(500).json({error : 'Unable to register for the event at the moment'});
+    });
+
+    res.status(200).json({'Updated Registered Events' : record});
 });
 
 module.exports = router;

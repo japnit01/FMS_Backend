@@ -2,7 +2,8 @@ let mongoose = require('mongoose');
 
 let competitorSchema = new mongoose.Schema({
     user_id: {
-        type: String
+        type: String,
+        unique: true
     },
     competitorName: {
         type: String,

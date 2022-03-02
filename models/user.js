@@ -27,9 +27,11 @@ let userSchema = new mongoose.Schema({
     isCoordinator: {
         type: Boolean,
         // required: true
+        default: false
     },
     registered_events: {
-        type: Array
+        type: Array,
+        default: []
     }
 })
 

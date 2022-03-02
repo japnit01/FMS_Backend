@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 let Users = require("../models/user");
+let Scheduler = require('../models/scheduler');
 const { body, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
@@ -25,10 +26,22 @@ router.post(
       let details = req.body;
       details.password = hash;
       let newUser = new Users(details);
-      newUser.save();
+      await newUser.save();
 
-      return res.status(303).json({ user: newUser });
+      let storedRecord = await Users.findOne({ email: req.body.email }).catch(err => {
+        res.status(500).json({error: 'Cannot find user'});
+      });
+
+      console.log(storedRecord);
+
+      let userSchedule = new Scheduler({user_id: storedRecord._id, comp_list: []});
+      userSchedule.save();
+
+      req.session.user_id = storedRecord._id;
+
+      return res.status(200).json({ user: newUser });
     } catch (err) {
+      console.log(err);
       return res.status(500).json({ err: err });
     }
   }
@@ -53,6 +66,7 @@ router.post(
         return res.status(404).json({ msg: "wrong password" });
       }
 
+      req.session.user_id = user._id;
       let jwtToken = jwt.sign({ id: user._id }, "secret");
       return res.status(200).json({ token: jwtToken });
     } catch (err) {
