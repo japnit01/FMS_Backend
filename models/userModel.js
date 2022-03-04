@@ -1,12 +1,6 @@
 const mongoose = require('mongoose');
 
 let userSchema = new mongoose.Schema({
-<<<<<<< Updated upstream:models/userModel.js
-    user_id: {
-        type: String
-    },
-=======
->>>>>>> Stashed changes:models/user.js
     name: {
         type: String,
         // required: true
