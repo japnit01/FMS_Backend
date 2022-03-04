@@ -1,9 +1,12 @@
 const mongoose = require('mongoose');
 
 let userSchema = new mongoose.Schema({
+<<<<<<< Updated upstream:models/userModel.js
     user_id: {
         type: String
     },
+=======
+>>>>>>> Stashed changes:models/user.js
     name: {
         type: String,
         // required: true
@@ -35,7 +38,6 @@ let userSchema = new mongoose.Schema({
 
 userSchema.index({name: 1, age: 1, college: 1});
 
-let Users = mongoose.model('Users',userSchema,'Users');
+module.exports = mongoose.model('Users',userSchema);
 
-module.exports = Users;
 
