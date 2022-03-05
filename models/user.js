@@ -28,16 +28,12 @@ let userSchema = new mongoose.Schema({
         type: Boolean,
         // required: true
         default: false
-    },
-    registered_events: {
-        type: Array,
-        default: []
     }
 })
 
 userSchema.index({name: 1, age: 1, college: 1});
 
-let Users = mongoose.model('Users',userSchema,'Users');
+let Users = mongoose.model('Users',userSchema);
 
 module.exports = Users;
 

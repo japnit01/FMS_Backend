@@ -4,7 +4,8 @@ let resultsSchema = require('./results.js')
 
 let competitionSchema = new mongoose.Schema({
     fest_id: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'fests'
     },
     // comp_id : {
     //     type: String
@@ -34,20 +35,13 @@ let competitionSchema = new mongoose.Schema({
         type: Date,
         // required: true
     },
-    guests: {
-        type: [guestsSchema]
-    },
     venue: {
         type: String,
         // required: true
     },
-    results: {
-        type: [resultsSchema]
-    },
-    isCompFinished: {
-        type: Boolean,
-        default: false
-    },
+    // results: {
+    //     type: [resultsSchema]
+    // },
     fee: {
         type: Number,
         default: 0

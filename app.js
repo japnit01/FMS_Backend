@@ -1,13 +1,11 @@
 const connecttomongo = require('./db');
 const express = require('express');
 const cors = require('cors')
-let session = require('express-session');
 connecttomongo();
 
 const app = express()
 const port = 5000
 app.use(cors())
-app.use(session({secret: 'keepitbetterasasecret'}))
 app.use(express.json())
 app.use('/api/auth',require('./routes/auth'))
 app.use("/api/fests",require("./routes/fests"));

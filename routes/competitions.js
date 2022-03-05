@@ -3,26 +3,28 @@ let router = express.Router();
 let {body, validationResult} = require('express-validator');
 let Competitions = require('../models/competition');
 let Users = require('../models/user');
-let requireLogin = require('../middlewares/requireLogin');
+let validateUser = require('../middlewares/validateUser')
 
-router.get('/:festid/getCompetitions',async(req,res)=> {
+router.get('/:festid/getCompetitions',validateUser,async(req,res)=> {
     let allCompetitions = await Competitions.find({fest_id: req.params.festid});
     res.status(200).json({competitions : allCompetitions});
 })
 
-router.post('/:festid/add-competition',async(req,res)=> {
+router.post('/:festid/add-competition',validateUser,async(req,res)=> {
     let compDetails = req.body;
     compDetails.fest_id = req.params.festid;
 
-    let newComp = new Competitions(req.body);
-    await newComp.save().catch(err => {
-        return res.status(500).send('Error creating the new competition');
-    });
+    // let newComp = await Competitions.create(compDetails).catch(err=> {
+    //     // return res.status(500).json({'msg':err});
+    // });
 
-    res.status(200).json({'new-competition':newComp});
+    let newComp = await new Competitions(compDetails);
+    newComp.save();
+
+    res.status(200).send(newComp);
 })
 
-router.put('/:festid/update-competition/:compid',async(req,res)=> {
+router.put('/:festid/update-competition/:compid',validateUser,async(req,res)=> {
     let updates = req.body;
     let updateData = {};
 
@@ -71,20 +73,12 @@ router.put('/:festid/update-competition/:compid',async(req,res)=> {
     res.status(200).json({'updated status':updatedComp});
 });
 
-router.delete('/:festid/delete-competition/:compid',async(req,res)=> {
+router.delete('/:festid/delete-competition/:compid',validateUser,async(req,res)=> {
     let deletedRecord = await Competitions.findOneAndDelete({fest_id: req.params.festid, _id: req.params.compid}).catch(err=> {
         return res.status(500).send('Error deleting the competition');
     })
 
     res.status(200).json({'deleted-record':deletedRecord});
-});
-
-router.post('/register-event/:compid',requireLogin,async(req,res) => {
-    let record = await Users.findByIdAndUpdate(req.session.user_id,{$push : {registered_events : req.params.compid}}, { new: true}).catch(err => {
-        return res.status(500).json({error : 'Unable to register for the event at the moment'});
-    });
-
-    res.status(200).json({'Updated Registered Events' : record});
 });
 
 module.exports = router;
