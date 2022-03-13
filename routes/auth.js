@@ -19,27 +19,25 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    
     try {
-      let salt = await bcrypt.genSalt(saltRounds);
-      let hash = await bcrypt.hash(req.body.password, salt);
-      let details = req.body;
-      details.password = hash;
-      let newUser = new Users(details);
-      await newUser.save();
+      
+      const user = await Users.findOne({ email: req.body.email })
 
-      let storedRecord = await Users.findOne({ email: req.body.email }).catch(err => {
-        res.status(500).json({error: 'Cannot find user'});
-      });
+        if (user)
+        return res.status(404).json({error: "Sorry!! A user with this email id already exists" })
 
-      console.log(storedRecord);
+        console.log("hello")
+    
+      // let salt = await bcrypt.genSalt(saltRounds);
+      // let hash = await bcrypt.hash(req.body.password, salt);
+      // let details = req.body;
+      // details.password = hash;
+      // let newUser = new Users(details);
+      // await newUser.save();
 
-      let userSchedule = new Scheduler({user_id: storedRecord._id, comp_list: []});
-      userSchedule.save();
-
-      req.session.user_id = storedRecord._id;
-
-      return res.status(200).json({ user: newUser });
+      // let jwtToken = jwt.sign({ id: newUser._id },"secret");
+      // return res.status(200).json({ token: jwtToken });
     } catch (err) {
       console.log(err);
       return res.status(500).json({ err: err });
@@ -59,14 +57,16 @@ router.post(
     }
 
     try {
-      let user = await Users.findOne({ email: req.body.email });
+      let user = await Users.findOne({ email: req.body.email }).catch(err => {
+        res.status(500).json({error: 'Cannot find user'});
+      });
       let result = await bcrypt.compare(req.body.password, user.password);
 
       if (!result) {
         return res.status(404).json({ msg: "wrong password" });
       }
 
-      req.session.user_id = user._id;
+      // req.session.user_id = user._id;
       let jwtToken = jwt.sign({ id: user._id }, "secret");
       return res.status(200).json({ token: jwtToken });
     } catch (err) {
