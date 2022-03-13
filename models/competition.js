@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-let guestsSchema = require('./guests');
 let resultsSchema = require('./results.js')
 
 let competitionSchema = new mongoose.Schema({

@@ -14,7 +14,7 @@ let schedulerSchema = new mongoose.Schema({
         ref: 'Competitions'
     }, 
     isRegistered : {
-        type: bool,
+        type: Boolean,
         default: false
     }
 })
