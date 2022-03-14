@@ -12,21 +12,21 @@ router.get('/fetchfest',async (req,res)=>{
 
 
 router.post('/addfest',async (req,res)=>{
-    const {name,description,organisation,startdate,enddate,city,state} = req.body;
+    const {title,description,organisation,startdate,enddate,city,state} = req.body;
     
-    const fest = new Fest({name,description,organisation,startdate,enddate,city,state});
+    const fest = new Fest({title,description,organisation,startdate,enddate,city,state});
     const savedfest = await fest.save();
 
     res.json(savedfest);
 });
 
 router.put("/updatefest/:id",async(req,res)=>{
-    const {name,description,organisation,startdate,enddate,city,state} = req.body;
+    const {title,description,organisation,startdate,enddate,city,state} = req.body;
     const newfest = {}
     
     if(name)
     {
-        newfest.name = name;
+        newfest.title = title;
     }
 
     if(description)

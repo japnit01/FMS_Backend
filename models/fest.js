@@ -6,16 +6,16 @@ const FestSchema = new Schema({
     //     type:mongoose.Schema.Types.ObjectId,
     //     ref:'user'
     // },
-    name:{
+    title:{
         type:String,
-        required:true
+        // required:true
     },
     description:{
         type:String,
     },
     organisation:{
         type:String,
-        required:true
+        // required:true
     },
     startdate:{
         type:Date,
@@ -25,11 +25,11 @@ const FestSchema = new Schema({
     },
     city:{
         type:String,
-        required:true
+        // required:true
     },
     state:{
         type:String,
-        required:true
+        // required:true
     },
     timestamp:{
         type:String,
