@@ -28,7 +28,7 @@ router.post(
       const user = await Users.findOne({ email: req.body.email })
 
       if (user)
-        return res.status(409).json({error: "Sorry!! A user with this email id already exists" })
+        return res.status(409).json({ success: false, error: "Sorry!! A user with this email id already exists" })
 
       let salt = await bcrypt.genSalt(saltRounds);
       let hash = await bcrypt.hash(req.body.password, salt);
@@ -38,10 +38,10 @@ router.post(
       await newUser.save();
 
       let jwtToken = jwt.sign({ id: newUser._id },"secret");
-      res.status(200).json({ token: jwtToken });
+      res.status(200).json({ success: true, token: jwtToken });
     } catch (err) {
       console.log(err);
-      res.status(500).json({ err: err });
+      res.status(500).json({ success: false, err: err });
     }
   }
 );
@@ -59,19 +59,19 @@ router.post(
 
     try {
       let user = await Users.findOne({ email: req.body.email }).catch(err => {
-        res.status(500).json({error: 'Cannot find user'});
+        res.status(500).json({ success: false, error: 'Cannot find user'});
       });
       let result = await bcrypt.compare(req.body.password, user.password);
 
       if (!result) {
-        return res.status(404).json({ msg: "wrong password" });
+        return res.status(404).json({ success: false, msg: "wrong password" });
       }
 
       // req.session.user_id = user._id;
       let jwtToken = jwt.sign({ id: user._id }, "secret");
-      res.status(200).json({ token: jwtToken });
+      res.status(200).json({ success: true, token: jwtToken });
     } catch (err) {
-      res.status(500).json({ err: err });
+      res.status(500).json({ success: false, err: err });
     }
   }
 );

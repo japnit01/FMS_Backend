@@ -4,9 +4,9 @@ const { body, validationResult } = require('express-validator')
 const Fest = require('../models/fest')
 let Competitions = require('../models/competition');
 
-router.get('/fetchfest',async (req,res)=>{
+router.get('/fetchfests',async (req,res)=>{
     const fests = await Fest.find();
-    res.json(fests);
+    res.status(200).json(fests);
 });
 
 
