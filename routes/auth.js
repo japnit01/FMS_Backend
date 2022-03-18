@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 let Users = require("../models/user");
-let Scheduler = require('../models/scheduler');
+let Scheduler = require("../models/scheduler");
 const { body, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
@@ -48,8 +48,8 @@ router.post(
 
 router.post(
   "/login",
-    // body("email", "Enter a valid email").isEmail(),
-    // body("password", "Password must have 5 characters").isLength({ min: 5 }),
+  body("email", "Enter a valid email").isEmail(),
+  body("password", "Password must have 5 characters").isLength({ min: 5 }),
   async (req, res) => {
     // let errors = validationResult(req);
 
@@ -67,7 +67,6 @@ router.post(
         return res.status(404).json({ success: false, msg: "wrong password" });
       }
 
-      // req.session.user_id = user._id;
       let jwtToken = jwt.sign({ id: user._id }, "secret");
       res.status(200).json({ success: true, token: jwtToken });
     } catch (err) {
