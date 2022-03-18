@@ -3,15 +3,21 @@ const router = express.Router();
 const { body, validationResult } = require('express-validator')
 const Fest = require('../models/fest')
 let Competitions = require('../models/competition');
+let validateUser = require('../middlewares/validateUser');
+const { body, validationResult } = require("express-validator");
 
-router.get('/fetchfests',async (req,res)=>{
+router.get('/fetchfests',validateUser,async (req,res)=>{
     const fests = await Fest.find();
     res.status(200).json(fests);
 });
 
 
-
-router.post('/addfest',async (req,res)=>{
+router.post('/addfest',validateUser,
+body("title","The length of Title should be between 3 and 30").isLength({min: 3, max: 30}),
+body("sdate","Enter a valid start date.").if(sdate > Date.now()),
+body("edate","Enter a valid end date.").if(edate >= sdate),
+body("fee","Enter a valid fee.").if(fee >= 0),
+async (req,res)=>{
     const {title,description,organisation,startdate,enddate,city,state} = req.body;
     
     const fest = new Fest({title,description,organisation,startdate,enddate,city,state});
@@ -20,11 +26,16 @@ router.post('/addfest',async (req,res)=>{
     res.json(savedfest);
 });
 
-router.put("/updatefest/:id",async(req,res)=>{
+router.put("/updatefest/:id",validateUser,
+body("title","The length of Title should be between 3 and 30").isLength({min: 3, max: 30}),
+body("sdate","Enter a valid start date.").if(sdate > Date.now()),
+body("edate","Enter a valid end date.").if(edate >= sdate),
+body("fee","Enter a valid fee.").if(fee >= 0),
+async(req,res)=>{
     const {title,description,organisation,startdate,enddate,city,state} = req.body;
     const newfest = {}
     
-    if(name)
+    if(title)
     {
         newfest.title = title;
     }
@@ -69,7 +80,7 @@ router.put("/updatefest/:id",async(req,res)=>{
     res.json(fest);
 });
 
-router.delete('/deletefest/:id',async(req,res)=>{
+router.delete('/deletefest/:id',validateUser,async(req,res)=>{
     let fest = await Fest.findById(req.params.id);
     if (!fest) {
         res.status(404).send("Not Found");
