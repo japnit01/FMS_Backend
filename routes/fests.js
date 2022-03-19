@@ -1,10 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { body, validationResult } = require('express-validator')
 let validateUser = require('../middlewares/validateUser')
 const Fest = require('../models/fest')
 let Competitions = require('../models/competition');
-let validateUser = require('../middlewares/validateUser');
 const { body, validationResult } = require("express-validator");
 
 router.get('/fetchfest',validateUser,async (req,res)=>{
@@ -19,9 +17,9 @@ router.get('/fetchallfest',async(req,res)=>{
 
 router.post('/addfest',validateUser,
 body("title","The length of Title should be between 3 and 30").isLength({min: 3, max: 30}),
-body("sdate","Enter a valid start date.").if(sdate > Date.now()),
-body("edate","Enter a valid end date.").if(edate >= sdate),
-body("fee","Enter a valid fee.").if(fee >= 0),
+body("sdate","Enter a valid start date.").custom(({req})=> req.body.sdate > Date.now()),
+body("edate","Enter a valid end date.").custom(({req})=> req.body.edate >= req.body.sdate),
+body("fee","Enter a valid fee.").custom(({req})=> req.body.fee >= 0),
 async (req,res)=>{
     const {title,description,organisation,startdate,enddate,city,state} = req.body;
     
@@ -31,11 +29,11 @@ async (req,res)=>{
     res.json(savedfest);
 });
 
-router.put("/updatefest/:id",validateUser,
+router.put("/updatefest/:id",validateUser,  
 body("title","The length of Title should be between 3 and 30").isLength({min: 3, max: 30}),
-body("sdate","Enter a valid start date.").if(sdate > Date.now()),
-body("edate","Enter a valid end date.").if(edate >= sdate),
-body("fee","Enter a valid fee.").if(fee >= 0),
+body("sdate","Enter a valid start date.").custom(({req})=> req.body.sdate > Date.now()),
+body("edate","Enter a valid end date.").custom(({req})=> req.body.edate >= req.body.sdate),
+body("fee","Enter a valid fee.").custom(({req})=> req.body.fee >= 0),
 async(req,res)=>{
     const {title,description,organisation,startdate,enddate,city,state} = req.body;
     const newfest = {}
