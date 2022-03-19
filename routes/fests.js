@@ -21,7 +21,7 @@ body("sdate","Enter a valid start date.").custom(({req})=> req.body.sdate > Date
 body("edate","Enter a valid end date.").custom(({req})=> req.body.edate >= req.body.sdate),
 body("fee","Enter a valid fee.").custom(({req})=> req.body.fee >= 0),
 async (req,res)=>{
-    const {title,description,organisation,startdate,enddate,city,state} = req.body;
+    const {name,description,organisation,startdate,enddate,city,state} = req.body;
     
     const fest = new Fest({user: req.user,name,description,organisation,startdate,enddate,city,state});
     const savedfest = await fest.save();
