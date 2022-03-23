@@ -5,7 +5,8 @@ let validateUser = (req,res,next) => {
     const token = req.header('token');
 
     if(!token) {
-        res.status(401).send('You have not logged in. Please login first!');
+        console.log('please login')
+        return res.status(401).send('You have not logged in. Please login first!');
     }
 
     try {
@@ -14,7 +15,8 @@ let validateUser = (req,res,next) => {
         
         next();
     } catch(err) {
-        res.status(401).send('Either wrong credentials or internal error');
+        console.log('please check token')
+        return res.status(401).send('Either wrong credentials or internal error');
     }
 
 }

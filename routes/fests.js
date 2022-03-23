@@ -17,14 +17,16 @@ router.get('/fetchallfest',async(req,res)=>{
 
 router.post('/addfest',validateUser,
 body("title","The length of Title should be between 3 and 30").isLength({min: 3, max: 30}),
-body("sdate","Enter a valid start date.").custom(({req})=> req.body.sdate > Date.now()),
-body("edate","Enter a valid end date.").custom(({req})=> req.body.edate >= req.body.sdate),
-body("fee","Enter a valid fee.").custom(({req})=> req.body.fee >= 0),
+// body("sdate","Enter a valid start date.").custom(({req})=> req.body.sdate > Date.now()),
+// body("edate","Enter a valid end date.").custom(({req})=> req.body.edate >= req.body.sdate),
+// body("fee","Enter a valid fee.").custom(({req})=> req.body.fee >= 0),
 async (req,res)=>{
-    const {name,description,organisation,startdate,enddate,city,state} = req.body;
+    const {title,description,organisation,startdate,enddate,city,state} = req.body;
     
-    const fest = new Fest({user: req.user,name,description,organisation,startdate,enddate,city,state});
+    const fest = new Fest({user: req.user,title,description,organisation,startdate,enddate,city,state});
     const savedfest = await fest.save();
+
+    console.log(savedfest);
 
     res.json(savedfest);
 });
