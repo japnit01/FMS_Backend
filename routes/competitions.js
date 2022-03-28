@@ -94,8 +94,20 @@ router.get('/:festid/:compid/competition-status',async(req,res)=> {
     res.status(200).json({start: true, results: results});
 });
 
-router.get('/:festid/:compid/nextRound',async(req,res)=> {
-    
+router.post('/:festid/:compid/nextRound',async(req,res)=> {
+    let roundDetails = {
+        fest_id: req.params.festid, 
+        comp_id: req.params.compid, 
+        roundNo: results.count()+1, 
+        // competitors: 
+    }
+
+    let prevRound = new Results(roundDetails);
+    let saveRound = await prevRound.save();
+
+    console.log(saveRound);
+
+    res.status(200).json({prevRound: saveRound});
 });
 
 // /nextRound, /viewCompetition
