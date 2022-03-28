@@ -3,6 +3,7 @@ let router = express.Router();
 let {body, validationResult} = require('express-validator');
 let Competitions = require('../models/competition');
 let Users = require('../models/user');
+let Results = require('../models/results')
 let validateUser = require('../middlewares/validateUser')
 
 router.get('/:festid/getCompetitions',validateUser,async(req,res)=> {
@@ -80,5 +81,23 @@ router.delete('/:festid/delete-competition/:compid',validateUser,async(req,res)=
 
     res.status(200).json({'deleted-record':deletedRecord});
 });
+
+router.get('/:festid/:compid/competition-status',async(req,res)=> {
+    let results = await Results.findOne({fest_id: req.params.festid, _id: req.params.compid}).catch(err=> {
+        return res.status(404).send("Competition not found");
+    });
+
+    if(results.length === 0) {
+        return res.json({start: false, results: []});
+    }
+
+    res.status(200).json({start: true, results: results});
+});
+
+router.get('/:festid/:compid/nextRound',async(req,res)=> {
+    
+});
+
+// /nextRound, /viewCompetition
 
 module.exports = router;
