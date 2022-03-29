@@ -13,6 +13,10 @@ let resultsSchema = new mongoose.Schema({
     roundNo: {
         type: Number
     },
+    winners: {
+        type: Array,
+        default: []
+    },
     competitors: {
         type: [competitorSchema]
     }

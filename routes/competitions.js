@@ -5,6 +5,7 @@ let Competitions = require('../models/competition');
 let Users = require('../models/user');
 let Results = require('../models/results')
 let validateUser = require('../middlewares/validateUser')
+let shuffle = require('../operations/shuffleRecords');
 
 router.get('/:festid/getCompetitions',validateUser,async(req,res)=> {
     let allCompetitions = await Competitions.find({fest_id: req.params.festid});
@@ -88,19 +89,58 @@ router.get('/:festid/:compid/competition-status',async(req,res)=> {
     });
 
     if(results.length === 0) {
-        return res.json({start: false, results: []});
+        let allCompetitors = await Users.find({comp_id: req.params.compid}).catch(function(err) {
+            return res.status(400).json({error: err.array()});
+        })
+
+        let roundDetails = {
+            fest_id: req.params.festid, 
+            comp_id: req.params.compid, 
+            roundNo: results.count()+1, 
+            competitors: []
+        }
+
+        // shuffling the competitors
+        shuffle(allCompetitors);
+        roundDetails.competitors = allCompetitors;
+
+        let prevRound = new Results(roundDetails);
+        let saveRound = await prevRound.save();
+
+        console.log(saveRound);
     }
 
-    res.status(200).json({start: true, results: results});
+    let currentRound = await Results.find().sort({_id:-1}).limit(1).catch(err => {
+        return res.status(400).send('error loading the current round');
+    })
+
+    res.status(200).json({start: true, currentRound: currentRound});
 });
 
 router.post('/:festid/:compid/nextRound',async(req,res)=> {
+
+    let results = await Results.find({fest_id: req.params.festid, comp_id: req.params.compid, }).catch(err => {
+        return res.status(400).send("Can't fetch results of this competition");
+    });
+
     let roundDetails = {
         fest_id: req.params.festid, 
         comp_id: req.params.compid, 
         roundNo: results.count()+1, 
-        // competitors: 
+        winners: req.body,
+        competitors: []
     }
+
+    let allCompetitors = [];
+    previousRoundResults = await Results.find().sort({_id:-1}).limit(1).catch(function(err) {
+        return res.status(400).json({error: err.array()})
+    });
+
+    allCompetitors = previousRoundResults.winners;
+
+    // shuffling the competitors
+    shuffle(allCompetitors);
+    roundDetails.competitors = allCompetitors;
 
     let prevRound = new Results(roundDetails);
     let saveRound = await prevRound.save();
