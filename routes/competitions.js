@@ -83,19 +83,19 @@ router.delete('/:festid/delete-competition/:compid',validateUser,async(req,res)=
     res.status(200).json({'deleted-record':deletedRecord});
 });
 
-router.get('/:festid/:compid/competition-status',async(req,res)=> {
-    let results = await Results.findOne({fest_id: req.params.festid, _id: req.params.compid}).catch(err=> {
+router.get('/:festid/:eventid/event-status',async(req,res)=> {
+    let results = await Results.findOne({fest_id: req.params.festid, _id: req.params.eventid}).catch(err=> {
         return res.status(404).send("Competition not found");
     });
 
     if(results.length === 0) {
-        let allCompetitors = await Users.find({comp_id: req.params.compid}).catch(function(err) {
+        let allCompetitors = await Users.find({comp_id: req.params.eventid}).catch(function(err) {
             return res.status(400).json({error: err.array()});
         })
 
         let roundDetails = {
             fest_id: req.params.festid, 
-            comp_id: req.params.compid, 
+            comp_id: req.params.eventid, 
             roundNo: results.count()+1, 
             competitors: []
         }
@@ -117,15 +117,15 @@ router.get('/:festid/:compid/competition-status',async(req,res)=> {
     res.status(200).json({start: true, currentRound: currentRound});
 });
 
-router.post('/:festid/:compid/nextRound',async(req,res)=> {
+router.post('/:festid/:eventid/nextRound',async(req,res)=> {
 
-    let results = await Results.find({fest_id: req.params.festid, comp_id: req.params.compid, }).catch(err => {
+    let results = await Results.find({fest_id: req.params.festid, comp_id: req.params.eventid, }).catch(err => {
         return res.status(400).send("Can't fetch results of this competition");
     });
 
     let roundDetails = {
         fest_id: req.params.festid, 
-        comp_id: req.params.compid, 
+        comp_id: req.params.eventid, 
         roundNo: results.count()+1, 
         winners: req.body,
         competitors: []
