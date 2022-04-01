@@ -1,40 +1,39 @@
 let express = require('express');
 let router = express.Router();
 let {body, validationResult} = require('express-validator');
-let Competitions = require('../models/competition');
-let Users = require('../models/user');
+let Events = require('../models/event');
 let Results = require('../models/results')
 let validateUser = require('../middlewares/validateUser')
 
-router.get('/:festid/getCompetitions',validateUser,async(req,res)=> {
-    let allCompetitions = await Competitions.find({fest_id: req.params.festid});
-    res.status(200).json({competitions : allCompetitions});
+router.get('/:festid/getevents',validateUser,async(req,res)=> {
+    let events = await Events.find({fest_id: req.params.festid});
+    res.status(200).json({Events : events});
 })
 
-router.post('/:festid/add-competition',validateUser,async(req,res)=> {
-    let compDetails = req.body;
-    compDetails.fest_id = req.params.festid;
+router.post('/:festid/add-event',validateUser,async(req,res)=> {
+    let eventDetails = req.body;
+    eventDetails.fest_id = req.params.festid;
 
     // let newComp = await Competitions.create(compDetails).catch(err=> {
     //     // return res.status(500).json({'msg':err});
     // });
 
-    let newComp = await new Competitions(compDetails);
-    newComp.save();
+    let newEvent = await new Events(eventDetails);
+    newEvent.save();
 
-    res.status(200).send(newComp);
+    res.status(200).send(newEvent);
 })
 
-router.put('/:festid/update-competition/:compid',validateUser,async(req,res)=> {
+router.put('/:festid/update-event/:eventid',validateUser,async(req,res)=> {
     let updates = req.body;
     let updateData = {};
 
-    if(updates.comp_type) {
-        updateData.comp_type = updates.comp_type
+    if(updates.type) {
+        updateData.type = updates.type
     }
 
-    if(updates.comp_name) {
-        updateData.comp_name = updates.comp_name
+    if(updates.name) {
+        updateData.name = updates.name
     }
 
     if(updates.startTime) {
@@ -65,18 +64,18 @@ router.put('/:festid/update-competition/:compid',validateUser,async(req,res)=> {
         updateData.fee = updates.fee
     }
 
-    let updatedComp = await Competitions.findOneAndUpdate({fest_id: req.params.festid, _id: req.params.compid},{$set : updateData}, { new: true }).catch(err => {
-        return res.status(500).send('Error updating the competition');
+    let updatedEvent = await Events.findOneAndUpdate({fest_id: req.params.festid, _id: req.params.eventid},{$set : updateData}, { new: true }).catch(err => {
+        return res.status(500).send('Error updating the event');
     });
 
-    console.log(updatedComp)
+    console.log(updatedEvent)
 
-    res.status(200).json({'updated status':updatedComp});
+    res.status(200).json({'updated status':updatedEvent});
 });
 
-router.delete('/:festid/delete-competition/:compid',validateUser,async(req,res)=> {
-    let deletedRecord = await Competitions.findOneAndDelete({fest_id: req.params.festid, _id: req.params.compid}).catch(err=> {
-        return res.status(500).send('Error deleting the competition');
+router.delete('/:festid/delete-event/:eventid',validateUser,async(req,res)=> {
+    let deletedRecord = await Events.findOneAndDelete({fest_id: req.params.festid, _id: req.params.eventid}).catch(err=> {
+        return res.status(500).send('Error deleting the event');
     })
 
     res.status(200).json({'deleted-record':deletedRecord});

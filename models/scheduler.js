@@ -5,13 +5,9 @@ let schedulerSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users'
     },
-    // comp_list: {
-    //     type: Array,
-    //     default: []
-    // }
-    comp_id: {
+    event_id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Competitions'
+        ref: 'event'
     }, 
     isRegistered : {
         type: Boolean,

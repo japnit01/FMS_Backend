@@ -1,19 +1,15 @@
 const mongoose = require('mongoose');
-let resultsSchema = require('./results.js')
 
-let competitionSchema = new mongoose.Schema({
+let eventSchema = new mongoose.Schema({
     fest_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'fests'
-    },
-    // comp_id : {
-    //     type: String
-    // }, 
-    comp_type: {
+    }, 
+    type: {
         type: String,
         // required: true
     },
-    comp_name: {
+    name: {
         type: String,
         // required: true
     },
@@ -30,7 +26,7 @@ let competitionSchema = new mongoose.Schema({
     description: {
         type: String
     },
-    date: {
+    startdate: {
         type: Date,
         // required: true
     },
@@ -38,15 +34,12 @@ let competitionSchema = new mongoose.Schema({
         type: String,
         // required: true
     },
-    // results: {
-    //     type: [resultsSchema]
-    // },
     fee: {
         type: Number,
         default: 0
     }
 });
 
-competitionSchema.index({comp_type: 1, comp_name: 1});
+eventSchema.index({comp_type: 1, comp_name: 1});
 
-module.exports = mongoose.model("Competitions",competitionSchema);
+module.exports = mongoose.model("",eventSchema);

@@ -1,7 +1,6 @@
 let express = require('express');
-let session = require('express-session');
 let Scheduler = require('../models/scheduler');
-let Competitions = require('../models/competition');
+let Events = require('../models/event');
 let router = express.Router();
 let validateUser = require('../middlewares/validateUser');
 
