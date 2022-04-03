@@ -5,18 +5,29 @@ let schedulerSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users'
     },
-    event_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'events'
+    events: {
+        type: [
+            new mongoose.Schema({
+                event_id: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'events'
+                },
+                isRegistered: {
+                    type: Boolean,
+                    default: false
+                }
+            })
+        ],
+        default: []
     },
     fest_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'fests'
-    }, 
-    isRegistered : {
-        type: Boolean,
-        default: false
     }
+    // isRegistered : {
+    //     type: Boolean,
+    //     default: false
+    // }
 })
 
 module.exports = mongoose.model('scheduler',schedulerSchema);

@@ -37,10 +37,10 @@ router.post('/register-event/:festid/:eventid',validateUser,async(req,res) => {
     });
 
     if(!event) {
-        event = new Scheduler({user_id : req.user, event_id : req.params.eventid, isRegistered : true});
+        event = new Scheduler({user_id : req.user, events : [{event_id: req.params.eventid, isRegistered : true}], fest_id: req.params.festid});
         event.save();
     } else {
-        event = await Scheduler.findOneAndUpdate(event, {$set : {isRegistered : true}},{new : true}).catch(err => {
+        event = await Scheduler.findOneAndUpdate(event, {$push : {events : {event_id: req.params.eventid, isRegistered : true}}},{new : true}).catch(err => {
             return res.status(400).json({'error':err});
         });
     }
