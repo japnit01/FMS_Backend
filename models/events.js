@@ -40,6 +40,6 @@ let eventSchema = new mongoose.Schema({
     }
 });
 
-eventSchema.index({comp_type: 1, comp_name: 1});
+eventSchema.index({type: 1, name: 1});
 
 module.exports = mongoose.model("events",eventSchema);

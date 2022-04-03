@@ -8,6 +8,10 @@ let schedulerSchema = new mongoose.Schema({
     event_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'events'
+    },
+    fest_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'fests'
     }, 
     isRegistered : {
         type: Boolean,

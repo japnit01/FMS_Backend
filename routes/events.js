@@ -1,18 +1,19 @@
 let express = require('express');
 let router = express.Router();
 let {body, validationResult} = require('express-validator');
-let Events = require('../models/events')
+let Events = require('../models/events');
 let Results = require('../models/results')
 let Users = require('../models/users')
 let validateUser = require('../middlewares/validateUser')
 
-router.get('/:festid/getevents',validateUser,async(req,res)=> {
+router.get('/:festid/fetchevents',validateUser,async(req,res)=> {
     let events = await Events.find({fest_id: req.params.festid});
-    res.status(200).json({Events : events});
+    res.status(200).json(events);
 })
 
 router.post('/:festid/add-event',validateUser,async(req,res)=> {
     let eventDetails = req.body;
+    console.log(eventDetails);
     eventDetails.fest_id = req.params.festid;
 
     // let newComp = await Competitions.create(compDetails).catch(err=> {
