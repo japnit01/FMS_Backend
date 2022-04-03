@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 let validateUser = require('../middlewares/validateUser')
-const Fest = require('../models/fest')
+const Fest = require('../models/fests')
 const { body, validationResult } = require("express-validator");
 
 router.get('/fetchfest',validateUser,async (req,res)=>{

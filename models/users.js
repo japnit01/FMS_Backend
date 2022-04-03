@@ -1,9 +1,6 @@
 const mongoose = require('mongoose');
 
 let userSchema = new mongoose.Schema({
-    // user_id: {
-    //     type: String
-    // },
     name: {
         type: String,
         // required: true
@@ -33,7 +30,7 @@ let userSchema = new mongoose.Schema({
 
 userSchema.index({name: 1, age: 1, college: 1});
 
-let Users = mongoose.model('Users',userSchema);
+let Users = mongoose.model('users',userSchema);
 
 module.exports = Users;
 
