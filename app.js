@@ -10,6 +10,7 @@ app.use(express.json())
 app.use('/api/auth',require('./routes/auth'))
 app.use("/api/fests",require("./routes/fests"));
 app.use("/api/events",require("./routes/events"));
+app.use("/api/events/duels",require("./routes/duels"));
 app.use("/api/schedule",require("./routes/scheduler"));
 
 app.listen(port, () => {

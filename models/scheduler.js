@@ -3,11 +3,11 @@ let mongoose = require('mongoose');
 let schedulerSchema = new mongoose.Schema({
     user_id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Users'
+        ref: 'users'
     },
     event_id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'event'
+        ref: 'events'
     }, 
     isRegistered : {
         type: Boolean,
@@ -15,4 +15,4 @@ let schedulerSchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('Scheduler',schedulerSchema);
+module.exports = mongoose.model('scheduler',schedulerSchema);

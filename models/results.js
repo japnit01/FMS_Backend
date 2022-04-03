@@ -1,5 +1,5 @@
 let mongoose = require('mongoose');
-let competitorSchema = require('./competitor');
+// let competitorSchema = require('./competitor');
 
 let resultsSchema = new mongoose.Schema({
     fest_id: {
@@ -17,9 +17,9 @@ let resultsSchema = new mongoose.Schema({
         type: Array,
         default: []
     },
-    competitors: {
-        type: [competitorSchema]
-    }
+    // competitors: {
+    //     type: [competitorSchema]
+    // }
 });
 
-module.exports = resultsSchema;
+module.exports = mongoose.model('results',resultsSchema);
