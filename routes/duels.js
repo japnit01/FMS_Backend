@@ -4,36 +4,40 @@ let createRivals = require('../operations/createRivals');
 let Scheduler = require('../models/scheduler')
 // let Results = require('../models/results')
 let Competitor = require('../models/competitor');
-let Users = require('../models/users')
+let Users = require('../models/users');
+const { matchedData } = require("express-validator");
 // const Scheduler = require("../models/scheduler");
 
 router.get('/:festid/:eventid/event-status',async(req,res)=> {
-    // let results = await Results.findOne({fest_id: req.params.festid, event_id: req.params.eventid}).catch(err=> {
-    //     return res.tatus(404).send("Competition not found");
-    // });
+    
+    
     let currentRound = await Competitor.find({event_id: req.params.eventid}).catch(err => {
         return res.status(400).send('error loading the event rounds');
     })
 
+    let schedule = await Scheduler.find({'events.event_id': req.params.eventid}).select({user_id:1}).catch(err => {
+        return res.status(400).send('error loading the schedule');
+    })
+
     if(currentRound.length === 0) {
-        // let allCompetitors = await Scheduler.find({event_id: req.params.eventid}).catch(function(err) {
-        //     return res.status(400).json({error: err.array()});
-        // })
-        let schedule = await Scheduler.find({'events.event_id': req.params.eventid}).select({user_id:1}).catch(err => {
-            return res.status(400).send('error loading the schedule');
-        })
 
         console.log('schedule:',schedule);
 
+        let n = schedule.length;    
+        let nearestPow2 = Math.pow(2,Math.floor(Math.log(n)/Math.log(2)) + 1);
         let roundDetails = [];
 
         schedule.map(element => {
             roundDetails.push({
                 user_id: element.user_id,
                 event_id: req.params.eventid,
-                round_no: 1, 
+                round_no: (nearestPow2 === schedule.length) ? 0 : -1, 
                 competitorScore: []
             })
+
+            if(roundDetails.length === 2*n - nearestPow2) {
+                return ;
+            }
         });
 
         let competitorsDetails = await Competitor.insertMany(roundDetails).catch(err => {
@@ -41,29 +45,14 @@ router.get('/:festid/:eventid/event-status',async(req,res)=> {
         });
 
         console.log(competitorsDetails)
-
-        currentRound = competitorsDetails
+        currentRound = competitorsDetails;
+        // return res.status(200).json({round: roundDetails[0].round_no, participants: schedule.length, currentRound: competitorsDetails});
         
-        // let roundDetails = {
-        //     user_id: , 
-        //     event_id: req.params.eventid, 
-        //     roundNo: 1, 
-        //     competitorScore: []
-        // }
-
-        // let prevRound = new Results(roundDetails);
-        // let saveRound = await prevRound.save();
-
-        // console.log(saveRound);
     }
 
-    // let currentRound = await Results.find().sort({_id:-1}).limit(1).catch(err => {
-    //     return res.status(400).send('error loading the current round');
-    // })
     console.log('currentRound:',currentRound)
 
-    // let names = currentRound.map(details => details.name);
-    let names = await Users.find({user_id : {$in : currentRound.map(details => details.user_id)}}).select('name').catch(err => {
+    let names = await Users.find({_id : {$in : currentRound.map(details => details.user_id)}}).select('name').catch(err => {
         return res.status(400).send('error loading users');
     });
     console.log(names)
@@ -71,40 +60,63 @@ router.get('/:festid/:eventid/event-status',async(req,res)=> {
     let duels = createRivals(names);
     console.log('duels:',duels)
 
-    res.status(200).json({currentRound: currentRound, duels : duels});
+    res.status(200).json({currentRound: currentRound, roundNo: currentRound[0].round_no, participants: schedule.length, duels : duels});
+});
+
+router.post('/:festid/:eventid/nextMatch',async(req,res)=> {
+    
+    let {comp1, comp2, score1,score2, round} = req.body;
+
+    let rec1 = await Competitor.updateOne({user_id : comp1}, { $set : { round_no : round }, $push : {competitorScore : score1}}).catch(err => {
+        return res.status(400).send('Cannot update competitor score for the current match.');
+    })
+    
+    let rec2 = await Competitor.updateOne({user_id : comp2}, { $set : { round_no : round }, $push : {competitorScore : score2}}).catch(err => {
+        return res.status(400).send('Cannot update competitor score for the current match.');
+    })
+
+    console.log('Competitor1 updated record: ', rec1);
+    console.log('Competitor2 updated record: ', rec2);
+
+    let deleteRecord = await Scheduler.updateOne({user_id: (score1 > score2) ? comp2 : comp1}, {$pull : {events : {event_id : req.params.event_id}}}).catch(err => {
+        return res.status(200).send('not able to remove the event from user schedule');
+    })
+
+    res.status(200).json({success: true, winner : (score1 > score2) ? comp1 : comp2});
 });
 
 router.post('/:festid/:eventid/nextRound',async(req,res)=> {
 
-    let results = await Results.find({fest_id: req.params.festid, event_id: req.params.eventid, }).catch(err => {
-        return res.status(400).send("Can't fetch results of this competition");
+    // let previousRoundResults = await Competitor.deleteMany({}).catch(err => {
+    //     return res.status(400).send('cannot delete previous round records')
+    // })
+
+    // let roundDetails = {
+    //     fest_id: req.params.festid, 
+    //     event_id: req.params.eventid, 
+    //     roundNo: results.count()+1, 
+    //     winners: req.body,
+    //     competitors: []
+    // }
+
+    let findCompetitors = await Scheduler.find({'events.event_id': req.params.eventid}).select({user_id:1}).catch(err => {
+        return res.status(400).send('error loading the schedule');
     });
 
-    let roundDetails = {
-        fest_id: req.params.festid, 
-        event_id: req.params.eventid, 
-        roundNo: results.count()+1, 
-        winners: req.body,
-        competitors: []
-    }
-
-    let allCompetitors = [];
-    previousRoundResults = await Results.find().sort({_id:-1}).limit(1).catch(function(err) {
-        return res.status(400).json({error: err.array()})
+    let currentCompetitors = await Competitor.find({user_id: {$in : findCompetitors.map(details => details.user_id)}}).catch(err => {
+        return res.status(400).send('error loading all competitors');
     });
 
-    allCompetitors = previousRoundResults.winners;
+    let names = await Users.find({_id : {$in : currentCompetitors.map(details => details.user_id)}}).select('name').catch(err => {
+        return res.status(400).send('error loading users');
+    });
+    console.log(names)
 
-    // shuffling the competitors
-    shuffle(allCompetitors);
-    roundDetails.competitors = allCompetitors;
+    let duels = createRivals(names);
+    console.log('duels:',duels)
 
-    let prevRound = new Results(roundDetails);
-    let saveRound = await prevRound.save();
+    res.status(200).json({currentRound: currentCompetitors, roundNo: currentCompetitors[0].round_no, participants: findCompetitors.length, duels : duels});
 
-    console.log(saveRound);
-
-    res.status(200).json({prevRound: saveRound});
 });
 
 module.exports = router;
