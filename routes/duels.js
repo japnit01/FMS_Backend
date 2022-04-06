@@ -65,6 +65,7 @@ router.get('/:festid/:eventid/event-status',async(req,res)=> {
 
 router.post('/:festid/:eventid/nextMatch',async(req,res)=> {
     
+    //next match button will be disabled after 1 click
     let {comp1, comp2, score1,score2, round} = req.body;
 
     let rec1 = await Competitor.updateOne({user_id : comp1}, { $set : { round_no : round }, $push : {competitorScore : score1}}).catch(err => {
@@ -78,28 +79,17 @@ router.post('/:festid/:eventid/nextMatch',async(req,res)=> {
     console.log('Competitor1 updated record: ', rec1);
     console.log('Competitor2 updated record: ', rec2);
 
-    let deleteRecord = await Scheduler.updateOne({user_id: (score1 > score2) ? comp2 : comp1}, {$pull : {events : {event_id : req.params.event_id}}}).catch(err => {
+    let deleteEvent = await Scheduler.updateOne({user_id: (score1 > score2) ? comp2 : comp1}, {$pull : {events : {event_id : req.params.eventid}}}).catch(err => {
         return res.status(200).send('not able to remove the event from user schedule');
     })
 
     res.status(200).json({success: true, winner : (score1 > score2) ? comp1 : comp2});
 });
 
-router.post('/:festid/:eventid/nextRound',async(req,res)=> {
+router.get('/:festid/:eventid/nextRound',async(req,res)=> {
 
-    // let previousRoundResults = await Competitor.deleteMany({}).catch(err => {
-    //     return res.status(400).send('cannot delete previous round records')
-    // })
-
-    // let roundDetails = {
-    //     fest_id: req.params.festid, 
-    //     event_id: req.params.eventid, 
-    //     roundNo: results.count()+1, 
-    //     winners: req.body,
-    //     competitors: []
-    // }
-
-    let findCompetitors = await Scheduler.find({'events.event_id': req.params.eventid}).select({user_id:1}).catch(err => {
+    //next round button will be disabled after 1 click
+    let findCompetitors = await Scheduler.find({'events.event_id': req.params.eventid}).catch(err => {
         return res.status(400).send('error loading the schedule');
     });
 
@@ -113,10 +103,49 @@ router.post('/:festid/:eventid/nextRound',async(req,res)=> {
     console.log(names)
 
     let duels = createRivals(names);
-    console.log('duels:',duels)
+    console.log('duels: ',duels)
 
     res.status(200).json({currentRound: currentCompetitors, roundNo: currentCompetitors[0].round_no, participants: findCompetitors.length, duels : duels});
 
 });
+
+router.post('/:festid/:eventid/finish',async(req,res)=> {
+    
+    //finish button will be disabled after 1 click
+
+    let {comp1, comp2, score1,score2, round} = req.body;
+
+    let rec1 = await Competitor.updateOne({user_id : comp1}, { $set : { round_no : round }, $push : {competitorScore : score1}}).catch(err => {
+        return res.status(400).send('Cannot update competitor score for the current match.');
+    })
+    
+    let rec2 = await Competitor.updateOne({user_id : comp2}, { $set : { round_no : round }, $push : {competitorScore : score2}}).catch(err => {
+        return res.status(400).send('Cannot update competitor score for the current match.');
+    })
+
+    console.log('Competitor1 updated record: ', rec1);
+    console.log('Competitor2 updated record: ', rec2);
+
+    let deleteEvent = await Scheduler.updateOne({user_id: (score1 > score2) ? comp2 : comp1}, {$pull : {events : {event_id : req.params.eventid}}}).catch(err => {
+        return res.status(200).send('not able to remove the event from user schedule');
+    })
+
+    let findWinners = await Competitor.aggregate([
+        { "$project": {
+            "user_id": 1,
+            "event_id": 1,
+            "competitorScore": 1,
+            recent: { $arrayElemAt: [ "$competitorScore", -1 ] }
+        }},
+        { "$sort": { "round_no" : -1, "competitorScore": -1 } },
+        { "$limit": 3 }
+    ]).catch(err => {
+        return res.status(400).send("Can't fetch the winners")
+    })
+
+    console.log(findWinners)
+
+    res.status(200).json({success: 1, winners: findWinners});
+})
 
 module.exports = router;

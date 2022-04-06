@@ -15,7 +15,7 @@ router.get('/getSchedule',validateUser,async(req, res,)=> {
 
 router.post('/addToSchedule/:festid/:eventid',validateUser,async(req,res)=> {
 
-    let event = new Scheduler({user_id:req.user, festid:req.params.festid, eventid : req.params.eventid});
+    let event = new Scheduler({user_id:req.user, festid:req.params.festid, $push : {events : {event_id : req.params.eventid, isRegistered : true}}});
     event.save();
     //notification part remaining
     res.status(200).json({"Added to schedule" : event});
@@ -23,8 +23,8 @@ router.post('/addToSchedule/:festid/:eventid',validateUser,async(req,res)=> {
 
 router.delete('/deleteFromSchedule/:eventid',validateUser,async(req, res)=> {
 
-    let event = await Scheduler.findOneAndDelete({user_id : req.user, event_id : req.params.eventid}).catch(err=> {
-        return res.status(500).json({error : err});
+    let event = await Scheduler.updateOne({user_id : req.user}, { $pull : { 'events.event_id' : req.params.eventid}}).catch(err => {
+        return res.status(500).json({error : 'Unable to register for the event at the moment'});
     });
 
     res.status(200).json({'event deleted': event});
@@ -40,7 +40,7 @@ router.post('/register-event/:festid/:eventid',validateUser,async(req,res) => {
         event = new Scheduler({user_id : req.user, events : [{event_id: req.params.eventid, isRegistered : true}], fest_id: req.params.festid});
         event.save();
     } else {
-        event = await Scheduler.findOneAndUpdate(event, {$push : {events : {event_id: req.params.eventid, isRegistered : true}}},{new : true}).catch(err => {
+        event = await Scheduler.updateOne({user_id : req.user}, {$push : {events : {event_id : req.params.eventid, isRegistered : true}}}).catch(err => {
             return res.status(400).json({'error':err});
         });
     }
@@ -48,8 +48,9 @@ router.post('/register-event/:festid/:eventid',validateUser,async(req,res) => {
     res.status(200).json({'Updated Registered Events' : event});
 });
 
-router.post('/unregister-event/:festid',validateUser,async(req, res)=> {
-    let record = await Users.findOneAndDelete({user_id : req.user, eventid : req.params.eventid}).catch(err => {
+router.post('/unregister-event/:eventid',validateUser,async(req, res)=> {
+
+    let record = await Scheduler.updateOne({user_id : req.user}, { $pull : { events : {event_id : req.params.eventid}}}).catch(err => {
         return res.status(500).json({error : 'Unable to register for the event at the moment'});
     });
 
