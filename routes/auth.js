@@ -48,8 +48,8 @@ router.post(
 
 router.post(
   "/login",
-  body("email", "Enter a valid email").isEmail(),
-  body("password", "Password must have 5 characters").isLength({ min: 5 }),
+  // body("email", "Enter a valid email").isEmail(),
+  // body("password", "Password must have 5 characters").isLength({ min: 5 }),
   async (req, res) => {
     // let errors = validationResult(req);
 

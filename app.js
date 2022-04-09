@@ -12,6 +12,7 @@ app.use("/api/fests",require("./routes/fests"));
 app.use("/api/events",require("./routes/events"));
 app.use("/api/events/duels",require("./routes/duels"));
 app.use("/api/schedule",require("./routes/scheduler"));
+app.use("/api/voting",require("./routes/voting"))
 
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)

@@ -16,6 +16,10 @@ let competitorSchema = new mongoose.Schema({
     competitorScore: {
         type: Array,
         default: [0]
+    },
+    votes : {
+        type: Number,
+        default: 0
     }
 });
 
