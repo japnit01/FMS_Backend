@@ -1,26 +1,42 @@
 const express = require("express");
 const router = express.Router();
-const { body, validationResult } = require('express-validator')
-const Fest = require('../models/fest')
+let validateUser = require('../middlewares/validateUser')
+const Fest = require('../models/fests')
+const { body, validationResult } = require("express-validator");
 
-router.get('/fetchfest',async (req,res)=>{
-    const fests = await Fest.find();
+router.get('/fetchfest',validateUser,async (req,res)=>{
+    const fests = await Fest.find({user: req.user});
     res.json(fests);
 });
 
-router.post('/addfest',async (req,res)=>{
+router.get('/fetchallfest',async(req,res)=>{
+    const fests = await Fest.find({}).select("-user");
+    res.json(fests)
+});
+
+router.post('/addfest',validateUser,
+// body("name","The length of Title should be between 3 and 30").isLength({min: 3, max: 30}),
+// body("startdate","Enter a valid start date.").custom(({req})=> req.body.sdate > Date.now()),
+// body("enddate","Enter a valid end date.").custom(({req})=> req.body.edate >= req.body.sdate),
+async (req,res)=>{
     const {name,description,organisation,startdate,enddate,city,state} = req.body;
     
-    const fest = new Fest({name,description,organisation,startdate,enddate,city,state});
+    const fest = new Fest({user: req.user,name,description,organisation,startdate,enddate,city,state});
     const savedfest = await fest.save();
+
+    console.log(savedfest);
 
     res.json(savedfest);
 });
 
-router.put("/updatefest/:id",async(req,res)=>{
+router.put("/updatefest/:id",validateUser,  
+// body("title","The length of Title should be between 3 and 30").isLength({min: 3, max: 30}),
+// body("sdate","Enter a valid start date.").custom(({req})=> req.body.sdate > Date.now()),
+// body("edate","Enter a valid end date.").custom(({req})=> req.body.edate >= req.body.sdate),
+async(req,res)=>{
     const {name,description,organisation,startdate,enddate,city,state} = req.body;
     const newfest = {}
-    
+
     if(name)
     {
         newfest.name = name;
@@ -57,7 +73,7 @@ router.put("/updatefest/:id",async(req,res)=>{
     }
 
     let fest = await Fest.findById(req.params.id);
-
+    
     if (!fest) {
         res.status(404).send("Not Found");
     }
@@ -66,14 +82,14 @@ router.put("/updatefest/:id",async(req,res)=>{
     res.json(fest);
 });
 
-router.delete('/deletefest/:id',async(req,res)=>{
+router.delete('/deletefest/:id',validateUser,async(req,res)=>{
     let fest = await Fest.findById(req.params.id);
     if (!fest) {
         res.status(404).send("Not Found");
     }
 
     fest = await Fest.findByIdAndDelete(req.params.id)
-    res.json({ "Success": "Note has been deleted", fest: fest});
+    res.json({ "Success": "Fest has been deleted", fest: fest});
 });
 
 module.exports = router;

@@ -24,14 +24,16 @@ let userSchema = new mongoose.Schema({
     isCoordinator: {
         type: Boolean,
         // required: true
+        default: false
     },
-    registered_events: {
-        type: Array
+    hasVoted : {
+        type: Boolean,
+        default: false
     }
 })
 
 userSchema.index({name: 1, age: 1, college: 1});
 
-module.exports = mongoose.model('Users',userSchema);
+let Users = mongoose.model('users',userSchema);
 
 

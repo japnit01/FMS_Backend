@@ -2,16 +2,20 @@ const mongoose = require("mongoose");
 const {Schema} = mongoose;
 
 const FestSchema = new Schema({
+    user:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'users'
+    },
     name:{
         type:String,
-        required:true
+        // required:true
     },
     description:{
         type:String,
     },
     organisation:{
         type:String,
-        required:true
+        // required:true
     },
     startdate:{
         type:Date,
@@ -21,11 +25,11 @@ const FestSchema = new Schema({
     },
     city:{
         type:String,
-        required:true
+        // required:true
     },
     state:{
         type:String,
-        required:true
+        // required:true
     },
     timestamp:{
         type:String,
