@@ -13,7 +13,7 @@ router.get('/:festid/fetchevents',validateUser,async(req,res)=> {
 
 router.post('/:festid/add-event',validateUser,async(req,res)=> {
     let eventDetails = req.body;
-    console.log(eventDetails);
+    // console.log(eventDetails);
     eventDetails.fest_id = req.params.festid;
 
     // let newComp = await Competitions.create(compDetails).catch(err=> {

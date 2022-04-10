@@ -24,10 +24,6 @@ let schedulerSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'fests'
     }
-    // isRegistered : {
-    //     type: Boolean,
-    //     default: false
-    // }
 })
 
 module.exports = mongoose.model('scheduler',schedulerSchema);

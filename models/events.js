@@ -37,7 +37,7 @@ let eventSchema = new mongoose.Schema({
     fee: {
         type: Number,
         default: 0
-    }
+    },
 });
 
 eventSchema.index({type: 1, name: 1});
