@@ -94,7 +94,7 @@ router.delete('/deletefest/:id',validateUser,async(req,res)=>{
 });
 
 router.post('/addcoordinator/:id',validateUser, async(req,res)=>{
-    const {coordinator} = req.body;
+    const {coordinators} = req.body;
 
     let fest = await Fest.findById(req.params.id);
     if(!fest)
@@ -102,14 +102,16 @@ router.post('/addcoordinator/:id',validateUser, async(req,res)=>{
         return res.status(404).send("Not found");
     }
 
-    let user = await Users.findOne({_id:coordinator});
+    let user = await Users.find({email: {$in: coordinators}},{_id:1});
+    let email = await Users.find({email: {$in: coordinators}},{_id:0,email:1});
+    console.log(user)
     if(!user)
     {
         return res.status(404).send("Not found user");
     }
 
-    // fest = await Fest.findByIdAndUpdate(req.params.id,{$push:{coordinators: {coordinator}}});
-    res.json({ "Success":"Coordinator added", "coordinators": coordinator});
+    fest = await Fest.updateOne({_id:req.params.id},{$addToSet: {coordinators: {$each: user}}});
+    res.json({ "Success":"Coordinator added", "coordinators": coordinators,"email":email});
 });
 
 module.exports = router;

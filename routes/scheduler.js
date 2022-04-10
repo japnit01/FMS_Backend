@@ -8,17 +8,10 @@ let Events = require('../models/events');
 const createjson = async (userSchedule) => {
     let newjson = [];
     for (let i = 0; i < userSchedule.length; i++) {
-        const fest = await Fest.findOne({ _id: userSchedule[i].fest_id });
-        const searchedevents = [];
-        for (let j = 0; j < userSchedule[i].events.length; j++) {
-            // console.log(userSchedule[i].events[j])
-            const event = await Events.findOne({ _id: userSchedule[i].events[j].event_id});
-            // console.log(event)
-            searchedevents.push(event);
-        }
-        newjson.push({fest,searchedevents});
+        const fest = await Fest.find({ _id: userSchedule[i].fest_id },{coordinators:0,_id:0,user:0,timestamp:0});
+        const event = await Events.find({_id:{$in: userSchedule[i].events},{_id:0,fest_id:0});
+        newjson.push({fest,event});
     }
-
     return newjson;
 }
 
