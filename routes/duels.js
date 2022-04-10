@@ -2,14 +2,12 @@ const express = require("express");
 const router = express.Router()
 let createRivals = require('../operations/createRivals');
 let Scheduler = require('../models/scheduler')
-// let Results = require('../models/results')
 let Competitor = require('../models/competitor');
 let Users = require('../models/users');
-const { matchedData } = require("express-validator");
-// const Scheduler = require("../models/scheduler");
+const { validationResult , body } = require("express-validator");
+const validateUser = require('../middlewares/validateUser')
 
-router.get('/:festid/:eventid/event-status',async(req,res)=> {
-    
+router.get('/:festid/:eventid/event-status',validateUser,async(req,res)=> {
     
     let currentRound = await Competitor.find({event_id: req.params.eventid}).catch(err => {
         return res.status(400).send('error loading the event rounds');
@@ -46,7 +44,6 @@ router.get('/:festid/:eventid/event-status',async(req,res)=> {
 
         console.log(competitorsDetails)
         currentRound = competitorsDetails;
-        // return res.status(200).json({round: roundDetails[0].round_no, participants: schedule.length, currentRound: competitorsDetails});
         
     }
 
@@ -63,7 +60,19 @@ router.get('/:festid/:eventid/event-status',async(req,res)=> {
     res.status(200).json({currentRound: currentRound, roundNo: currentRound[0].round_no, participants: schedule.length, duels : duels});
 });
 
-router.post('/:festid/:eventid/nextMatch',async(req,res)=> {
+router.post('/:festid/:eventid/nextMatch',
+    // body("score1","Enter a valid competitor score.").isFloat({min : 0}),
+    // body("score2","Enter a valid competitor score.").isFloat({min : 0}),
+    // body("comp1","Competitor does not exist. Please try again.").exists({checkFalsy: true}),
+    // body("comp2","Competitor does not exist. Please try again.").exists({checkFalsy: true}),
+    // body("round","Round number should be greater than 0").isFloat({min : 0}),
+    validateUser,async(req,res)=> {
+
+    // let errors = validationResult(req);
+
+    // if (!errors.isEmpty()) {
+    //   return res.status(400).json({ errors: errors.array() });
+    // }
     
     //next match button will be disabled after 1 click
     let {comp1, comp2, score1,score2, round} = req.body;
@@ -86,7 +95,7 @@ router.post('/:festid/:eventid/nextMatch',async(req,res)=> {
     res.status(200).json({success: true, winner : (score1 > score2) ? comp1 : comp2});
 });
 
-router.get('/:festid/:eventid/nextRound',async(req,res)=> {
+router.get('/:festid/:eventid/nextRound',validateUser,async(req,res)=> {
 
     //next round button will be disabled after 1 click
     let findCompetitors = await Scheduler.find({'events.event_id': req.params.eventid}).catch(err => {
@@ -109,7 +118,19 @@ router.get('/:festid/:eventid/nextRound',async(req,res)=> {
 
 });
 
-router.post('/:festid/:eventid/finish',async(req,res)=> {
+router.post('/:festid/:eventid/finish',
+    // body("score1","Enter a valid competitor score.").isFloat({min : 0}),
+    // body("score2","Enter a valid competitor score.").isFloat({min : 0}),
+    // body("comp1","Competitor does not exist. Please try again.").exists({checkFalsy: true}),
+    // body("comp2","Competitor does not exist. Please try again.").exists({checkFalsy: true}),
+    // body("round","Round number should be greater than 0").isFloat({min : 0}),
+    validateUser,async(req,res)=> {
+
+    // let errors = validationResult(req);
+
+    // if (!errors.isEmpty()) {
+    //   return res.status(400).json({ errors: errors.array() });
+    // }
     
     //finish button will be disabled after 1 click
 

@@ -25,6 +25,10 @@ let userSchema = new mongoose.Schema({
         type: Boolean,
         // required: true
         default: false
+    },
+    hasVoted : {
+        type: Boolean,
+        default: false
     }
 })
 
