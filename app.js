@@ -11,6 +11,7 @@ app.use('/api/auth',require('./routes/auth'))
 app.use("/api/fests",require("./routes/fests"));
 app.use("/api/events",require("./routes/events"));
 app.use("/api/events/duels",require("./routes/duels"));
+app.use("/api/events/solo",require("./routes/solo"));
 app.use("/api/schedule",require("./routes/scheduler"));
 app.use("/api/voting",require("./routes/voting"))
 
