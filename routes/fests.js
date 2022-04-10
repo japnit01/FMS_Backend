@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 let validateUser = require('../middlewares/validateUser')
 const Fest = require('../models/fests')
+const Users = require("../models/users");
 const { body, validationResult } = require("express-validator");
 
 router.get('/fetchfest',validateUser,async (req,res)=>{
@@ -90,6 +91,25 @@ router.delete('/deletefest/:id',validateUser,async(req,res)=>{
 
     fest = await Fest.findByIdAndDelete(req.params.id)
     res.json({ "Success": "Fest has been deleted", fest: fest});
+});
+
+router.post('/addcoordinator/:id',validateUser, async(req,res)=>{
+    const {coordinator} = req.body;
+
+    let fest = await Fest.findById(req.params.id);
+    if(!fest)
+    {
+        return res.status(404).send("Not found");
+    }
+
+    let user = await Users.findOne({_id:coordinator});
+    if(!user)
+    {
+        return res.status(404).send("Not found user");
+    }
+
+    // fest = await Fest.findByIdAndUpdate(req.params.id,{$push:{coordinators: {coordinator}}});
+    res.json({ "Success":"Coordinator added", "coordinators": coordinator});
 });
 
 module.exports = router;

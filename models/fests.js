@@ -31,6 +31,9 @@ const FestSchema = new Schema({
         type:String,
         // required:true
     },
+    coordinators:{
+        type:Array,
+    },
     timestamp:{
         type:String,
         default:Date.now
