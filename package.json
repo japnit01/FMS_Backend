@@ -79,5 +79,8 @@
   "bugs": {
     "url": "https://github.com/japnit01/FMS_Backend/issues"
   },
-  "homepage": "https://github.com/japnit01/FMS_Backend#readme"
+  "homepage": "https://github.com/japnit01/FMS_Backend#readme",
+  "devDependencies": {
+    "@faker-js/faker": "^6.1.2"
+  }
 }
