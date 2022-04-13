@@ -16,7 +16,6 @@ function generateRandom(min = 18, max = 24) {
     return rand;
 }
 
-
 let registerAll = async () => {
     let allusers = await Users.find({}, { _id: 1 }).catch(err => {
         return res.status(400).send('cannot fetch all the users');
