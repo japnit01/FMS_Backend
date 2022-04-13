@@ -9,7 +9,7 @@ const createjson = async (userSchedule) => {
     let newjson = [];
     for (let i = 0; i < userSchedule.length; i++) {
         const fest = await Fest.find({ _id: userSchedule[i].fest_id },{coordinators:0,_id:0,user:0,timestamp:0});
-        const event = await Events.find({_id:{$in: userSchedule[i].events},{_id:0,fest_id:0});
+        const event = await Events.find({_id:{$in: userSchedule[i].events}},{_id:0,fest_id:0});
         newjson.push({fest,event});
     }
     return newjson;
