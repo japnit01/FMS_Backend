@@ -47,17 +47,17 @@ router.get('/:festid/:eventid/event-status',validateUser,async(req,res)=> {
         
     }
 
-    console.log('currentRound:',currentRound)
+    // console.log('currentRound:',currentRound)
 
-    let names = await Users.find({_id : {$in : currentRound.map(details => details.user_id)}}).select('name').catch(err => {
+    let names = await Users.find({_id : {$in : currentRound.map(details => details.user_id)}},{name:1,_id:1}).catch(err => {
         return res.status(400).send('error loading users');
     });
-    console.log(names)
+    // console.log(names)
 
-    let duels = createRivals(names);
-    console.log('duels:',duels)
+    let duals = createRivals(names);
+    // console.log('duals:',duals)
 
-    res.status(200).json({currentRound: currentRound, roundNo: currentRound[0].round_no, participants: schedule.length, duels : duels});
+    res.status(200).json({currentRound: currentRound, roundNo: currentRound[0].round_no, participants: schedule.length, duals : duals});
 });
 
 router.post('/:festid/:eventid/nextMatch',
@@ -111,10 +111,10 @@ router.get('/:festid/:eventid/nextRound',validateUser,async(req,res)=> {
     });
     console.log(names)
 
-    let duels = createRivals(names);
-    console.log('duels: ',duels)
+    let duals = createRivals(names);
+    console.log('duals: ',duals)
 
-    res.status(200).json({currentRound: currentCompetitors, roundNo: currentCompetitors[0].round_no, participants: findCompetitors.length, duels : duels});
+    res.status(200).json({currentRound: currentCompetitors, roundNo: currentCompetitors[0].round_no, participants: findCompetitors.length, duals : duals});
 
 });
 

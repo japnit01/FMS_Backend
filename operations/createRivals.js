@@ -1,14 +1,15 @@
 
 function createRivals(arr) {
 
-
-    let duels = [];
+    let duals = [];
 
     for(let i=0;i<arr.length-1;i+=2) {
-        duels.push([arr[i].name,arr[i+1].name]);
+        // console.log(arr[i])
+        duals.push([arr[i],arr[i+1]]);
+    
     }
 
-    return duels;
+    return duals;
 }
 
 module.exports = createRivals;
