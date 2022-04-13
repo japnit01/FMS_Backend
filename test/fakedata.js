@@ -3,10 +3,10 @@ let router = express.Router();
 let Users = require("../models/users");
 const { faker } = require('@faker-js/faker');
 const Scheduler = require('../models/scheduler')
-const festid = "624acb73803ebe5bf45305fc";
-const eventid = "624f0d643640071aae45a87e";
+const festid = "6257240489b4df037c232946";
+const eventid = "6257275589b4df037c232953";
 const password = "password";
-const count = 107;
+const count = 109;
 
 function generateRandom(min = 18, max = 24) {
     let difference = max - min;
