@@ -13,49 +13,59 @@ router.get('/:festid/:eventid/event-status',validateUser,async(req,res)=> {
         return res.status(400).send('error loading the event rounds');
     })
 
+    // console.log(currentRound)
+
     let schedule = await Scheduler.find({'events.event_id': req.params.eventid}).select({user_id:1}).catch(err => {
         return res.status(400).send('error loading the schedule');
     })
 
     if(currentRound.length === 0) {
 
-        console.log('schedule:',schedule);
+        // console.log('schedule:',schedule);
+        console.log('currentRound length is zero')
 
-        let n = schedule.length;    
+        let n = schedule.length;  
+        
+        
         let nearestPow2 = Math.pow(2,Math.floor(Math.log(n)/Math.log(2)) + 1);
         let roundDetails = [];
+        console.log(nearestPow2)
 
-        schedule.map(element => {
+        let temp = schedule;
+
+        if(temp.length !== nearestPow2) {
+            temp = schedule.slice(0,2*n-nearestPow2);
+        }
+
+        temp.map(element => {
             roundDetails.push({
                 user_id: element.user_id,
                 event_id: req.params.eventid,
                 round_no: (nearestPow2 === schedule.length) ? 0 : -1, 
                 competitorScore: []
             })
-            
-            if(roundDetails.length === 2*n - nearestPow2) {
-                return ;
-            }
         });
+
+        console.log('total competitors for this round: ',roundDetails.length)
 
         let competitorsDetails = await Competitor.insertMany(roundDetails).catch(err => {
             return res.status(400).send('error loading competitor details');
         });
 
-        console.log(competitorsDetails)
+        // console.log(competitorsDetails)
         currentRound = competitorsDetails;
         
     }
 
-    console.log('currentRound:',currentRound)
+    // console.log('currentRound:',currentRound)
 
     let names = await Users.find({_id : {$in : currentRound.map(details => details.user_id)}}).select('name').catch(err => {
         return res.status(400).send('error loading users');
     });
-    console.log(names)
+    // console.log(names)
 
     let duals = createRivals(names);
-    console.log('duals:',duals)
+    // console.log('duals:',duals)
 
     res.status(200).json({currentRound: currentRound, roundNo: currentRound[0].round_no, participants: schedule.length, duals : duals});
 });
