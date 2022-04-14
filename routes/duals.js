@@ -176,6 +176,12 @@ router.post('/:festid/:eventid/finish',
 
     console.log(findWinners)
 
+    let cleanDB = await Competitor.deleteMany({}).catch(err => {
+        return res.status(400).send('Unable to clean the database');
+    })
+
+    console.log(cleanDB);
+
     res.status(200).json({success: 1, winners: findWinners});
 })
 

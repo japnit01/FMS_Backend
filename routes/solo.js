@@ -93,7 +93,7 @@ router.post('/:festid/:eventid/finish',
 
     // if (!errors.isEmpty()) {
     //   return res.status(400).json({ errors: errors.array() });
-    // }
+    // }let allCompetito
     
     //finish button will be disabled after 1 click
 
@@ -108,6 +108,12 @@ router.post('/:festid/:eventid/finish',
     })
 
     console.log(findWinners)
+
+    let cleanDB = await Competitor.deleteMany({}).catch(err => {
+        return res.status(400).send('Unable to clean the database');
+    })
+
+    console.log(cleanDB);
 
     res.status(200).json({success: 1, winners: findWinners});
 })
