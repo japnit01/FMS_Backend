@@ -14,7 +14,7 @@ router.get('/',validateUser,async(req,res)=> {
 
 
 router.post('/',
-    body("comp_id","Competitor does not exist. Please vote for the correct competitor.").exists({checkFalsy: true}),
+    // body("comp_id","Competitor does not exist. Please vote for the correct competitor.").exists({checkFalsy: true}),
     validateUser,async(req,res)=> {
 
     // let errors = validationResult(req);

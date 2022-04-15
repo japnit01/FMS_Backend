@@ -19,6 +19,10 @@ router.get('/:festid/:eventid/event-status',validateUser,async(req,res)=> {
         return res.status(400).send('error loading the schedule');
     })
 
+    if(schedule.length === 0) {
+        return res.status(400).send('no registrations for this event available')
+    }
+
     if(currentRound.length === 0) {
 
         // console.log('schedule:',schedule);
