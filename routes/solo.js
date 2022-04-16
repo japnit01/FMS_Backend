@@ -8,17 +8,20 @@ const validateUser = require('../middlewares/validateUser')
 
 router.get('/:festid/:eventid/event-status',async(req, res)=> {
 
-    let compDetails = await Competitor.find({event_id: req.params.eventid}).catch(err => {
+    // {user_id:1,name:1,college:1}
+    let compDetails = await Competitor.find({event_id: req.params.eventid}).select({user_id:1, name:1, college:1}).catch(err => {
         return res.status(400).send('error loading the event rounds');
     })
 
-    let schedule = await Scheduler.find({'events.event_id': req.params.eventid}).select({user_id:1}).catch(err => {
+    console.log('compDetails: ',compDetails)
+
+    let schedule = await Scheduler.find({'events.event_id': req.params.eventid},{user_id:1,name: 1}).catch(err => {
         return res.status(400).send('error loading the schedule');
     })
 
     if(compDetails.length === 0) {
 
-        console.log('schedule:',schedule);
+        // console.log('schedule:',schedule);
         let roundDetails = [];
 
         schedule.map(element => {
@@ -32,18 +35,19 @@ router.get('/:festid/:eventid/event-status',async(req, res)=> {
             return res.status(400).send('error loading competitor details');
         });
 
-        console.log(competitorsDetails)
+        // console.log('competitorDetails: ',competitorsDetails)
         compDetails = competitorsDetails;
     }
 
-    console.log('Solo Performances Details:',compDetails)
+    // console.log('competitor details on backend:',compDetails)
 
-    let names = await Users.find({_id : {$in : compDetails.map(details => details.user_id)}}).select('name').catch(err => {
+    let names = await Users.find({_id : {$in : compDetails.map(details => details.user_id)}},{name: 1, user_id: 1, college: 1}).select('name').catch(err => {
         return res.status(400).send('error loading users');
     });
-    console.log(names)
+    // console.log(names)
+    // compDetails: compDetails
 
-    res.status(200).json({compDetails: compDetails, participants: schedule.length, compList: names});
+    res.status(200).json({participants: schedule.length, compList: names});
 });
 
 router.post('/',
@@ -58,21 +62,7 @@ router.post('/',
 
     // competitor's user_id received in req.body
 
-    // let userRecord = await Users.findOne({_id : req.user}).catch(err => {
-    //     return res.status(404).send('User not found');
-    // })
-
-    // if(userRecord.hasVoted === true) {
-    //     return res.status(200).json({success: false, msg : 'You have already voted!'});
-    // }
-
-    // let updateUserRecord = await Users.updateOne({_id : req.user}, {$set : {hasVoted : true}}, {new : true}).catch(err => {
-    //     return res.status(400).send('Unable to record your vote');
-    // })
-
-    // console.log("Vote recorded: ",updateUserRecord);
-
-    let recordCompVote = await Competitor.updateOne({user_id : req.body.comp_id}, {$inc : {votes : 1}},{new : true}).catch(err => {
+    let recordCompVote = await Competitor.updateOne({user_id : {$in: req.body.compids}}, {$inc : {votes : 1}},{new : true}).catch(err => {
         return res.status(400).send("Unable to increment competitor's votes.")
     });
 

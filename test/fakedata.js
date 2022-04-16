@@ -3,8 +3,14 @@ let router = express.Router();
 let Users = require("../models/users");
 const { faker } = require('@faker-js/faker');
 const Scheduler = require('../models/scheduler')
-const festid = "6257240489b4df037c232946";
-const eventid = "6257275589b4df037c232953";
+
+//Japnit
+// const festid = "6257240489b4df037c232946";
+// const eventid = "6257275589b4df037c232953";
+
+//Sarthak
+const festid = '6257240489b4df037c232946';
+const eventid = '6259b0f67668036ccdd51b89';
 const password = "password";
 const count = 109;
 
