@@ -28,8 +28,7 @@ router.get('/:festid/:eventid/event-status',validateUser,async(req,res)=> {
         // console.log('schedule:',schedule);
         console.log('currentRound length is zero')
 
-        let n = schedule.length;  
-        
+        let n = schedule.length; 
         
         let nearestPow2 = Math.pow(2,Math.floor(Math.log(n)/Math.log(2)) + 1);
         let roundDetails = [];
@@ -102,7 +101,7 @@ router.post('/:festid/:eventid/nextMatch',
     console.log('Competitor1 updated record: ', rec1);
     console.log('Competitor2 updated record: ', rec2);
 
-    let deleteEvent = await Scheduler.updateOne({user_id: (score1 > score2) ? comp2 : comp1}, {$pull : {events : {event_id : req.params.eventid}}}).catch(err => {
+    let deleteEvent = await Scheduler.updateOne({user_id: (score1 > score2) ? comp2 : comp1}, {$pull : {events: {event_id : req.params.eventid}}}).catch(err => {
         return res.status(200).send('not able to remove the event from user schedule');
     })
 
