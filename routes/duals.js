@@ -89,6 +89,7 @@ router.post('/:festid/:eventid/nextMatch',
     
     //next match button will be disabled after 1 click
     let {comp1, comp2, score1,score2, round} = req.body;
+    console.log(req.body)
 
     let rec1 = await Competitor.updateOne({user_id : comp1}, { $set : { round_no : round }, $push : {competitorScore : score1}}).catch(err => {
         return res.status(400).send('Cannot update competitor score for the current match.');

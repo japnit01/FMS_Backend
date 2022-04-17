@@ -13,7 +13,7 @@ router.get('/:festid/:eventid/event-status',async(req, res)=> {
         return res.status(400).send('error loading the event rounds');
     })
 
-    console.log('compDetails: ',compDetails)
+    // console.log('compDetails: ',compDetails)
 
     let schedule = await Scheduler.find({'events.event_id': req.params.eventid},{user_id:1,name: 1}).catch(err => {
         return res.status(400).send('error loading the schedule');
@@ -41,7 +41,7 @@ router.get('/:festid/:eventid/event-status',async(req, res)=> {
 
     // console.log('competitor details on backend:',compDetails)
 
-    let names = await Users.find({_id : {$in : compDetails.map(details => details.user_id)}},{name: 1, user_id: 1, college: 1}).select('name').catch(err => {
+    let names = await Users.find({_id : {$in : compDetails.map(details => details.user_id)}},{name: 1, _id: 1, college: 1}).select('name').catch(err => {
         return res.status(400).send('error loading users');
     });
     // console.log(names)
@@ -50,7 +50,7 @@ router.get('/:festid/:eventid/event-status',async(req, res)=> {
     res.status(200).json({participants: schedule.length, compList: names});
 });
 
-router.post('/',
+router.post('/:festid/:eventid/voting',
     body("comp_id","Competitor does not exist. Please vote for the correct competitor.").exists({checkFalsy: true}),
     validateUser,async(req,res)=> {
 
@@ -61,9 +61,12 @@ router.post('/',
     // }
 
     // competitor's user_id received in req.body
+    if(req.body.selectedCandidates.length > 20) {
+        return res.status(400).json({success: false,msg:"You cannot vote for more than 20 participants"});
+    }
 
-    let recordCompVote = await Competitor.updateOne({user_id : {$in: req.body.compids}}, {$inc : {votes : 1}},{new : true}).catch(err => {
-        return res.status(400).send("Unable to increment competitor's votes.")
+    let recordCompVote = await Competitor.updateOne({user_id : {$in: req.body.selectedCandidates}, event_id:req.params.eventid}, {$inc : {votes : 1}},{new : true}).catch(err => {
+        return res.status(400).json({success:false,msg:"Unable to increment competitor's votes."})
     });
 
     console.log('Votes incremented: ', recordCompVote);
