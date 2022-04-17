@@ -44,7 +44,7 @@ router.get('/:festid/:eventid/event-status',async(req, res)=> {
     let names = await Users.find({_id : {$in : compDetails.map(details => details.user_id)}},{name: 1, _id: 1, college: 1}).select('name').catch(err => {
         return res.status(400).send('error loading users');
     });
-    // console.log(names)
+    // console. log(names)
     // compDetails: compDetails
 
     res.status(200).json({participants: schedule.length, compList: names});
@@ -74,7 +74,7 @@ router.post('/:festid/:eventid/voting',
     res.status(200).json({success: true, 'Competitor Record': recordCompVote});
 });
 
-router.post('/:festid/:eventid/finish',
+router.get('/:festid/:eventid/finish',
     // body("score1","Enter a valid competitor score.").isFloat({min : 0}),
     // body("score2","Enter a valid competitor score.").isFloat({min : 0}),
     // body("comp1","Competitor does not exist. Please try again.").exists({checkFalsy: true}),
@@ -102,7 +102,7 @@ router.post('/:festid/:eventid/finish',
 
     console.log(findWinners)
 
-    let cleanDB = await Competitor.deleteMany({}).catch(err => {
+    let cleanDB = await Competitor.deleteMany({event_id: req.params.eventid}).catch(err => {
         return res.status(400).send('Unable to clean the database');
     })
 
