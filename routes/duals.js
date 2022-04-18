@@ -23,24 +23,23 @@ router.get('/:festid/:eventid/event-status',validateUser,async(req,res)=> {
         return res.status(400).send('no registrations for this event available')
     }
 
+    let n = schedule.length;
+
     if(currentRound.length === 0) {
 
         // console.log('schedule:',schedule);
-        console.log('currentRound length is zero')
-
-        let n = schedule.length; 
+        console.log('currentRound length is zero') 
         
         let nearestPow2 = Math.pow(2,Math.floor(Math.log(n)/Math.log(2)) + 1);
         let roundDetails = [];
         console.log(nearestPow2)
 
-        let temp = schedule;
 
-        if(temp.length !== nearestPow2) {
-            temp = schedule.slice(0,2*n-nearestPow2);
+        if(schedule.length !== nearestPow2) {
+            schedule = schedule.slice(0,2*n-nearestPow2);
         }
 
-        temp.map(element => {
+        schedule.map(element => {
             roundDetails.push({
                 user_id: element.user_id,
                 event_id: req.params.eventid,
@@ -70,7 +69,7 @@ router.get('/:festid/:eventid/event-status',validateUser,async(req,res)=> {
     let duals = createRivals(names);
     // console.log('duals:',duals)
 
-    res.status(200).json({currentRound: currentRound, roundNo: currentRound[0].round_no, participants: schedule.length, duals : duals});
+    res.status(200).json({currentRound: currentRound, roundNo: currentRound[0].round_no, participants: n, duals : duals});
 });
 
 router.post('/:festid/:eventid/nextMatch',
