@@ -8,22 +8,29 @@ const { validationResult , body } = require("express-validator");
 const validateUser = require('../middlewares/validateUser')
 
 router.get('/:festid/:eventid/event-status',validateUser,async(req,res)=> {
-    
+
     let currentRound = await Competitor.find({event_id: req.params.eventid}).catch(err => {
         return res.status(400).send('error loading the event rounds');
     })
 
+    if(!currentRound) {
+        return res.status(400).send('no participants available');
+    }
+                                                                                        
     // console.log(currentRound)
 
     let schedule = await Scheduler.find({'events.event_id': req.params.eventid}).select({user_id:1}).catch(err => {
         return res.status(400).send('error loading the schedule');
     })
 
+    console.log('schedule: ',schedule)
+
     if(schedule.length === 0) {
         return res.status(400).send('no registrations for this event available')
-    }
+    }        
 
     let n = schedule.length;
+    console.log('n:',n)
 
     if(currentRound.length === 0) {
 
@@ -32,34 +39,52 @@ router.get('/:festid/:eventid/event-status',validateUser,async(req,res)=> {
         
         let nearestPow2 = Math.pow(2,Math.floor(Math.log(n)/Math.log(2)) + 1);
         let roundDetails = [];
-        console.log(nearestPow2)
+        let temp;
+        // console.log(nearestPow2)
 
+        temp = JSON.parse(JSON.stringify(schedule.slice(2*n-nearestPow2, n)))
 
         if(schedule.length !== nearestPow2) {
-            schedule = schedule.slice(0,2*n-nearestPow2);
+            schedule = JSON.parse(JSON.stringify(schedule.slice(0,2*n-nearestPow2)));
         }
+
+        // console.log(schedule.length)
 
         schedule.map(element => {
             roundDetails.push({
                 user_id: element.user_id,
                 event_id: req.params.eventid,
-                round_no: (nearestPow2 === schedule.length) ? 0 : -1, 
+                round_no: (nearestPow2 === n) ? 0 : -1 , 
                 competitorScore: []
             })
         });
 
-        console.log('total competitors for this round: ',roundDetails.length)
+        // console.log('temp: ',temp)
+
+        // console.log('total competitors for this round: ',roundDetails.length)
+
+        currentRound = JSON.parse(JSON.stringify(roundDetails));  
+
+        temp.map(element => {
+            roundDetails.push({
+                user_id: element.user_id,
+                event_id: req.params.eventid,
+                round_no: 0,
+                competitorScore: []
+            })
+        })
+
+        // console.log(roundDetails);
 
         let competitorsDetails = await Competitor.insertMany(roundDetails).catch(err => {
             return res.status(400).send('error loading competitor details');
         });
 
         // console.log(competitorsDetails)
-        currentRound = competitorsDetails;
         
     }
 
-    // console.log('currentRound:',currentRound)
+    console.log('currentRound:',currentRound)
 
     let names = await Users.find({_id : {$in : currentRound.map(details => details.user_id)}}).select('name').catch(err => {
         return res.status(400).send('error loading users');
@@ -90,11 +115,15 @@ router.post('/:festid/:eventid/nextMatch',
     let {comp1, comp2, score1,score2, round} = req.body;
     console.log(req.body)
 
-    let rec1 = await Competitor.updateOne({user_id : comp1}, { $set : { round_no : round }, $push : {competitorScore : score1}}).catch(err => {
+    // , $push : {competitorScore : score1}
+
+    let rec1 = await Competitor.updateOne({user_id : comp1}, { $set : { round_no : round }}).catch(err => {
         return res.status(400).send('Cannot update competitor score for the current match.');
     })
     
-    let rec2 = await Competitor.updateOne({user_id : comp2}, { $set : { round_no : round }, $push : {competitorScore : score2}}).catch(err => {
+    // , $push : {competitorScore : score2}
+
+    let rec2 = await Competitor.updateOne({user_id : comp2}, { $set : { round_no : round }}).catch(err => {
         return res.status(400).send('Cannot update competitor score for the current match.');
     })
 
