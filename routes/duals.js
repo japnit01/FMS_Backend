@@ -75,7 +75,7 @@ router.get('/:festid/:eventid/event-status',validateUser,async(req,res)=> {
             roundDetails.push({
                 user_id: element.user_id,
                 event_id: req.params.eventid,
-                round_no: (nearestPow2 === n) ? 2 : 1 , 
+                round_no: 1 , 
                 competitorScore: []
             })
         });
@@ -90,7 +90,7 @@ router.get('/:festid/:eventid/event-status',validateUser,async(req,res)=> {
             roundDetails.push({
                 user_id: element.user_id,
                 event_id: req.params.eventid,
-                round_no: 2,
+                round_no: (n !== nearestPow2) ? 2 : 1,
                 competitorScore: []
             })
         })
@@ -242,18 +242,18 @@ router.post('/:festid/:eventid/finish',
 
     let {comp1, comp2, score1,score2, round} = req.body;
 
-    let rec1 = await Competitor.updateOne({user_id: (score1 > score2) ? comp2 : comp1}, { $set : { round_no : -round+1 }}).catch(err => {
+    let rec1 = await Competitor.updateOne({user_id: (score1 > score2) ? comp2 : comp1}, { $set : { round_no : -round }}).catch(err => {
         return res.status(400).send('Cannot update competitor score for the current match.');
     })
     
     // , $push : {competitorScore : score2}
 
-    let rec2 = await Competitor.updateOne({user_id: (score1 > score2) ? comp1 : comp2}, { $set : { round_no : round }}).catch(err => {
+    let rec2 = await Competitor.updateOne({user_id: (score1 > score2) ? comp1 : comp2}, { $set : { round_no : round+1 }}).catch(err => {
         return res.status(400).send('Cannot update competitor score for the current match.');
     })
 
-    console.log('Competitor1 updated record: ', rec1);
-    console.log('Competitor2 updated record: ', rec2);
+    // console.log('Competitor1 updated record: ', rec1);
+    // console.log('Competitor2 updated record: ', rec2);
 
     // let deleteEvent = await Scheduler.updateOne({user_id: (score1 > score2) ? comp2 : comp1}, {$pull : {events : {event_id : req.params.eventid}}}).catch(err => {
     //     return res.status(200).send('not able to remove the event from user schedule');
@@ -272,13 +272,13 @@ router.post('/:festid/:eventid/finish',
         return res.status(400).send("Can't fetch the winners")
     })
 
-    console.log(findWinners)
+    console.log('winners: ',findWinners)
 
-    let cleanDB = await Competitor.deleteMany({}).catch(err => {
-        return res.status(400).send('Unable to clean the database');
-    })
+    // let cleanDB = await Competitor.deleteMany({}).catch(err => {
+    //     return res.status(400).send('Unable to clean the database');
+    // })
 
-    console.log(cleanDB);
+    // console.log(cleanDB);
 
     res.status(200).json({success: 1, winners: findWinners});
 })
