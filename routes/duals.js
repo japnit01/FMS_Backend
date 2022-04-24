@@ -138,13 +138,13 @@ router.post('/:festid/:eventid/nextMatch',
 
     // , $push : {competitorScore : score1}
 
-    let rec1 = await Competitor.updateOne({user_id: (score1 > score2) ? comp2 : comp1}, { $set : { round_no : -round }, $push : {competitorScore : score1}}).catch(err => {
+    let rec1 = await Competitor.updateOne({user_id: (score1 > score2) ? comp2 : comp1}, { $set : { round_no : -round }, $push : {competitorScore :  (score1 > score2) ? score2 : score1}}).catch(err => {
         return res.status(400).send('Cannot update competitor score for the current match.');
     })
     
     // , $push : {competitorScore : score2}
 
-    let rec2 = await Competitor.updateOne({user_id: (score1 > score2) ? comp1 : comp2}, { $set : { round_no : (round+1)}, $push : {competitorScore : score2}}).catch(err => {
+    let rec2 = await Competitor.updateOne({user_id: (score1 > score2) ? comp1 : comp2}, { $set : { round_no : (round+1)}, $push : {competitorScore : (score1 > score2) ? score1 : score2}}).catch(err => {
         return res.status(400).send('Cannot update competitor score for the current match.');
     })
 
@@ -170,13 +170,13 @@ router.post('/:festid/:eventid/nextRound',validateUser,async(req,res)=> {
 
     // , $push : {competitorScore : score1}
 
-    let rec1 = await Competitor.updateOne({user_id: (score1 > score2) ? comp2 : comp1}, { $set : { round_no : -round }, $push : {competitorScore : score1}}).catch(err => {
+    let rec1 = await Competitor.updateOne({user_id: (score1 > score2) ? comp2 : comp1}, { $set : { round_no : -round }, $push : {competitorScore :  (score1 > score2) ? score2 : score1}}).catch(err => {
         return res.status(400).send('Cannot update competitor score for the current match.');
     })
     
     // , $push : {competitorScore : score2}
 
-    let rec2 = await Competitor.updateOne({user_id: (score1 > score2) ? comp1 : comp2}, { $set : { round_no : (round+1) }, $push : {competitorScore : score2}}).catch(err => {
+    let rec2 = await Competitor.updateOne({user_id: (score1 > score2) ? comp1 : comp2}, { $set : { round_no : (round+1)}, $push : {competitorScore : (score1 > score2) ? score1 : score2}}).catch(err => {
         return res.status(400).send('Cannot update competitor score for the current match.');
     })
 
@@ -242,13 +242,15 @@ router.post('/:festid/:eventid/finish',
 
     let {comp1, comp2, score1,score2, round} = req.body;
 
-    let rec1 = await Competitor.updateOne({user_id: (score1 > score2) ? comp2 : comp1}, { $set : { round_no : -round }}).catch(err => {
+    // let r1 = await Competitor.findOne({user_id: })
+
+    let rec1 = await Competitor.updateOne({user_id: (score1 > score2) ? comp2 : comp1}, { $set : { round_no : -round }, $push : {competitorScore :  (score1 > score2) ? score2 : score1}}).catch(err => {
         return res.status(400).send('Cannot update competitor score for the current match.');
     })
     
     // , $push : {competitorScore : score2}
 
-    let rec2 = await Competitor.updateOne({user_id: (score1 > score2) ? comp1 : comp2}, { $set : { round_no : round+1 }}).catch(err => {
+    let rec2 = await Competitor.updateOne({user_id: (score1 > score2) ? comp1 : comp2}, { $set : { round_no : (round+1)}, $push : {competitorScore : (score1 > score2) ? score1 : score2}}).catch(err => {
         return res.status(400).send('Cannot update competitor score for the current match.');
     })
 
@@ -259,14 +261,20 @@ router.post('/:festid/:eventid/finish',
     //     return res.status(200).send('not able to remove the event from user schedule');
     // })
 
+    // let findWinners = await Competitor.find().sort({round_no: {"$abs" : -1}, competitorScore : {$size : -1}}).limit(3).catch(err => {
+    //     return res.status(400).send('cannot find winners')
+    // })
+
     let findWinners = await Competitor.aggregate([
         { "$project": {
             "user_id": 1,
             "event_id": 1,
             "competitorScore": 1,
-            recent: { $arrayElemAt: [ "$competitorScore", -1 ] }
+            "round_no": {"$abs" : "$round_no"}    ,
+            // recent: { $arrayElemAt: [ "$competitorScore", -1 ] }
+            "length" : {"$size" : "$competitorScore"}
         }},
-        { "$sort": { "round_no" : -1, "competitorScore": -1 } },
+        { "$sort": { "round_no": -1,"length": -1} },
         { "$limit": 3 }
     ]).catch(err => {
         return res.status(400).send("Can't fetch the winners")

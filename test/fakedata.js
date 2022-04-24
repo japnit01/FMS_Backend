@@ -12,7 +12,7 @@ const Scheduler = require('../models/scheduler')
 const festid = '6265591b17f9d99130cf57f7';
 const eventid = '6265599d17f9d99130cf57fd';
 const password = "password";
-const count = 4;
+const count = 12;
 
 function generateRandom(min = 18, max = 24) {
     let difference = max - min;
