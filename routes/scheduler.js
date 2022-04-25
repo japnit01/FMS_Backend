@@ -6,26 +6,26 @@ const Fest = require('../models/fests');
 let Events = require('../models/events');
 
 const createjson = async (userSchedule) => {
-    let newjson = [];
+    let festjson = [];
+    let eventjson = [];
     for (let i = 0; i < userSchedule.length; i++) {
         const fest = await Fest.find({ _id: userSchedule[i].fest_id },{coordinators:0,_id:0,user:0,timestamp:0});
-        console.log(userSchedule[i].events)
-        const event = await Events.find({_id:{$in: userSchedule[i].events}},{_id:0,fest_id:0});
-        newjson.push({fest,event});
+        let eventids = await userSchedule[i].events.map(event => event.event_id)
+        const events = await Events.find({_id:{$in: eventids}});
+        festjson.push(fest);
+        eventjson.push(events)
     }
-    return newjson;
+    return festjson,eventjson;
 }
 
 router.get('/getSchedule', validateUser, async (req, res,) => {
 
-    let userSchedule = await Scheduler.find({ user_id: req.user },{'event.isRegistered':0}).catch(err => {
+    let userSchedule = await Scheduler.find({ user_id: req.user }).catch(err => {
         return res.status(500).json({ error: err });
     });
-
-    // console.log(userSchedule)
-    const contentjson = await createjson(userSchedule);
-    console.log(contentjson);
-    res.status(200).json(contentjson);
+    const {festjson,eventjson} = await createjson(userSchedule);
+    // console.log(contentjson);
+    res.status(200).json({festjson,eventjson});
 });
 
 router.post('/addToSchedule/:festid/:eventid', validateUser, async (req, res) => {

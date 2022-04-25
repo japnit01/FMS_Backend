@@ -9,10 +9,10 @@ const Scheduler = require('../models/scheduler')
 // const eventid = "6257275589b4df037c232953";
 
 //Sarthak
-const festid = '6265591b17f9d99130cf57f7';
-const eventid = '6265599d17f9d99130cf57fd';
+const festid = '624acb73803ebe5bf45305fc';
+const eventid = '625b43729150fcef679740c3';
 const password = "password";
-const count = 4;
+const count = 2;
 
 function generateRandom(min = 18, max = 24) {
     let difference = max - min;
