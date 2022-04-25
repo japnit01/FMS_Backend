@@ -6,8 +6,10 @@ const Fest = require('../models/fests');
 let Events = require('../models/events');
 
 const createjson = async (userSchedule) => {
-    let newjson = [];
+    let festjson = [];
+    let eventjson = [];
     for (let i = 0; i < userSchedule.length; i++) {
+<<<<<<< HEAD
         const fest = await Fest.findOne({ _id: userSchedule[i].fest_id },{coordinators:0,_id:0,user:0,timestamp:0});
         let eventids = userSchedule[i].events.map(event => event.event_id)
         // console.log('eventids: ',eventids)
@@ -19,18 +21,33 @@ const createjson = async (userSchedule) => {
     }
     // console.log('newjson: ',newjson)
     return newjson;
+=======
+        const fest = await Fest.find({ _id: userSchedule[i].fest_id },{coordinators:0,_id:0,user:0,timestamp:0});
+        let eventids = await userSchedule[i].events.map(event => event.event_id)
+        const events = await Events.find({_id:{$in: eventids}});
+        festjson.push(fest);
+        eventjson.push(events)
+    }
+    return festjson,eventjson;
+>>>>>>> 9b5dd2d26fb9a10f55b8e66332b952cf23de0a39
 }
 
 router.get('/getSchedule', validateUser, async (req, res,) => {
 
-    let userSchedule = await Scheduler.find({ user_id: req.user },{'event.isRegistered':0}).catch(err => {
+    let userSchedule = await Scheduler.find({ user_id: req.user }).catch(err => {
         return res.status(500).json({ error: err });
     });
+<<<<<<< HEAD
 
     // console.log(userSchedule)
     const contentjson = await createjson(userSchedule);
     console.log('contentjson: ',contentjson);
     res.status(200).send(contentjson);
+=======
+    const {festjson,eventjson} = await createjson(userSchedule);
+    // console.log(contentjson);
+    res.status(200).json({festjson,eventjson});
+>>>>>>> 9b5dd2d26fb9a10f55b8e66332b952cf23de0a39
 });
 
 router.post('/addToSchedule/:festid/:eventid', validateUser, async (req, res) => {
