@@ -6,9 +6,8 @@ const Fest = require('../models/fests');
 let Events = require('../models/events');
 
 const createjson = async (userSchedule) => {
-    // let festjson = [];
+    let newjson = [];
     // let eventjson = [];
-    let newjson = []
     for (let i = 0; i < userSchedule.length; i++) {
         const fest = await Fest.findOne({ _id: userSchedule[i].fest_id },{coordinators:0,_id:0,user:0,timestamp:0});
         let eventids = userSchedule[i].events.map(event => event.event_id)
