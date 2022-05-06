@@ -10,7 +10,7 @@ let validateUser = (req,res,next) => {
     }
 
     try {
-        let key = jwt.verify(token,"secret");
+        let key = jwt.verify(token,process.env.SECRET);
         req.user = key.id;
         
         next();

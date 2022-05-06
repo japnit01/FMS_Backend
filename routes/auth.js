@@ -37,7 +37,7 @@ router.post(
       let newUser = new Users(details);
       await newUser.save();
 
-      let jwtToken = jwt.sign({ id: newUser._id },"secret");
+      let jwtToken = jwt.sign({ id: newUser._id },process.env.SECRET);
       res.status(200).json({ success: true, token: jwtToken });
     } catch (err) {
       console.log(err);
