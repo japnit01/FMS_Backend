@@ -234,8 +234,11 @@ router.post('/:festid/:eventid/finish',
     })
 
     let winnersUserIds = findWinners.map(winner => winner.user_id);
+    let winnersnames = await Users.find({name: {$in : winnersUserIds}}).catch(err => {
+        return res.status(400).send('unable to fetch winner names')
+    });
 
-    let resultRecord = new Results({fest_id: req.params.festid, event_id: req.params.eventid, roundNo: findWinners[0].round_no, winners: winnersUserIds});
+    let resultRecord = new Results({fest_id: req.params.festid, event_id: req.params.eventid, roundNo: findWinners[0].round_no, winners: winnersnames});
 
     resultRecord.save();
 
