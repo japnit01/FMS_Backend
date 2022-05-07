@@ -6,6 +6,7 @@ let Competitor = require('../models/competitor');
 let Users = require('../models/users');
 const { validationResult , body } = require("express-validator");
 const validateUser = require('../middlewares/validateUser')
+let Results = require('../models/results')
 
 router.get('/:festid/:eventid/event-status',validateUser,async(req,res)=> {
 
@@ -232,9 +233,15 @@ router.post('/:festid/:eventid/finish',
         return res.status(400).send("Can't fetch the winners")
     })
 
-    let Winners = await Results.insertMany(findWinners).catch(err => {
-        return res.status(400).send('unable to store winners')
-    })
+    let winnersUserIds = findWinners.map(winner => winner.user_id);
+
+    let resultRecord = new Results({fest_id: req.params.festid, event_id: req.params.eventid, roundNo: findWinners[0].round_no, winners: winnersUserIds});
+
+    resultRecord.save();
+
+    // let Winners = await Results.insertMany( ).catch(err => {
+    //     return res.status(400).send('unable to store winners')
+    // })
 
     res.status(200).json({success: 1, currentRoundWinner: (score1 >= score2) ? comp1 : comp2});
 })

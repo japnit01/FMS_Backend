@@ -6,7 +6,7 @@ let resultsSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref: 'fest'
     },
-    comp_id: {
+    event_id: {
         type:mongoose.Schema.Types.ObjectId,
         ref: 'competition'
     },
