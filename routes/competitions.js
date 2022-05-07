@@ -11,10 +11,10 @@ router.get('/:festid/getCompetitions',validateUser,async(req,res)=> {
 })
 
 router.post('/:festid/add-competition',
-    body("startTime","Enter a valid start time.").custom(({req})=> req.body.startTime > Date.now()),
-    body("startdate","Enter a valid end time.").custom(({req})=> req.body.endTime >= req.body.startTime),
-    body("sdate","Enter a valid start date.").custom(({req})=> req.body.startdate > Date.now()),
-    body("fee","Round number should be greater than or equal to 0").isFloat({min : 0}),
+    // body("startTime","Enter a valid start time.").custom(({req})=> req.body.startTime > Date.now()),
+    // body("startdate","Enter a valid end time.").custom(({req})=> req.body.endTime >= req.body.startTime),
+    // body("sdate","Enter a valid start date.").custom(({req})=> req.body.startdate > Date.now()),
+    // body("fee","Round number should be greater than or equal to 0").isFloat({min : 0}),
     validateUser,async(req,res)=> {
 
     let errors = validationResult(req);
@@ -35,10 +35,10 @@ router.post('/:festid/add-competition',
 })
 
 router.put('/:festid/update-competition/:compid',
-    body("startTime","Enter a valid start time.").custom(({req})=> req.body.startTime > Date.now()),
-    body("startdate","Enter a valid end time.").custom(({req})=> req.body.endTime >= req.body.startTime),
-    body("sdate","Enter a valid start date.").custom(({req})=> req.body.startdate > Date.now()),
-    body("fee","Round number should be greater than or equal to 0").isFloat({min : 0}),
+    // body("startTime","Enter a valid start time.").custom(({req})=> req.body.startTime > Date.now()),
+    // body("startdate","Enter a valid end time.").custom(({req})=> req.body.endTime >= req.body.startTime),
+    // body("sdate","Enter a valid start date.").custom(({req})=> req.body.startdate > Date.now()),
+    // body("fee","Round number should be greater than or equal to 0").isFloat({min : 0}),
     validateUser,async(req,res)=> {
 
         let errors = validationResult(req);
