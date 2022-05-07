@@ -3,6 +3,7 @@ let router = express.Router();
 const { validationResult , body } = require("express-validator");
 const validateUser = require('../middlewares/validateUser')
 let Competitor = require('../models/competitor');
+let Results = require('../models/results')
 
 router.get("/:event-type/:festid/:eventid",validateUser,async(req,res) => {
 
@@ -38,9 +39,11 @@ router.get("/:event-type/:festid/:eventid",validateUser,async(req,res) => {
             return res.status(400).send("Can't fetch the winners")
         })
 
-        console.log('winners: ',findWinners)
-
+        
     }
+
+    
+    console.log('winners: ',findWinners)
     res.status(200).json({success: 1, winners: findWinners});
 })
 

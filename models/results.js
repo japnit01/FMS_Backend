@@ -16,10 +16,7 @@ let resultsSchema = new mongoose.Schema({
     winners: {
         type: Array,
         default: []
-    },
-    // competitors: {
-    //     type: [competitorSchema]
-    // }
+    }
 });
 
 module.exports = mongoose.model('results',resultsSchema);
