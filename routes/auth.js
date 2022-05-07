@@ -68,7 +68,7 @@ router.post(
         return res.status(404).json({ success: false, msg: "wrong password" });
       }
 
-      let jwtToken = jwt.sign({ id: user._id }, "secret");
+      let jwtToken = jwt.sign({ id: user._id }, process.env.SECRET);
       res.status(200).json({ success: true, token: jwtToken });
     } catch (err) {
       res.status(500).json({ success: false, err: err });
