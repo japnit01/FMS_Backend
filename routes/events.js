@@ -11,7 +11,20 @@ router.get('/:festid/fetchevents',validateUser,async(req,res)=> {
     res.status(200).json(events);
 })
 
-router.post('/:festid/add-event',validateUser,async(req,res)=> {
+router.post('/:festid/add-event',
+body("startTime","Enter a valid start time.").custom(({req})=> req.body.startTime > Date.now()),
+    body("startdate","Enter a valid end time.").custom(({req})=> req.body.endTime >= req.body.startTime),
+    body("sdate","Enter a valid start date.").custom(({req})=> req.body.startdate > Date.now()),
+    body("fee","Round number should be greater than or equal to 0").isFloat({min : 0}),
+validateUser,async(req,res)=> {
+
+
+    let errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     let eventDetails = req.body;
     // console.log(eventDetails);
     eventDetails.fest_id = req.params.festid;
@@ -26,7 +39,18 @@ router.post('/:festid/add-event',validateUser,async(req,res)=> {
     res.status(200).send(newEvent);
 })
 
-router.put('/:festid/update-event/:eventid',validateUser,async(req,res)=> {
+router.put('/:festid/update-event/:eventid',
+body("startTime","Enter a valid start time.").custom(({req})=> req.body.startTime > Date.now()),
+body("startdate","Enter a valid end time.").custom(({req})=> req.body.endTime >= req.body.startTime),
+body("sdate","Enter a valid start date.").custom(({req})=> req.body.startdate > Date.now()),
+body("fee","Round number should be greater than or equal to 0").isFloat({min : 0}),
+validateUser,async(req,res)=> {
+
+    let errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+        }
     let updates = req.body;
     let updateData = {};
 

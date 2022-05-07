@@ -16,10 +16,17 @@ router.get('/fetchallfest',async(req,res)=>{
 });
 
 router.post('/addfest',validateUser,
-// body("name","The length of Title should be between 3 and 30").isLength({min: 3, max: 30}),
-// body("startdate","Enter a valid start date.").custom(({req})=> req.body.sdate > Date.now()),
-// body("enddate","Enter a valid end date.").custom(({req})=> req.body.edate >= req.body.sdate),
+body("name","The length of Title should be between 3 and 30").isLength({min: 3, max: 30}),
+body("startdate","Enter a valid start date.").custom(({req})=> req.body.sdate > Date.now()),
+body("enddate","Enter a valid end date.").custom(({req})=> req.body.edate >= req.body.sdate),
 async (req,res)=>{
+
+    let errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     const {name,description,organisation,startdate,enddate,city,state} = req.body;
     
     const fest = new Fest({user: req.user,name,description,organisation,startdate,enddate,city,state});
@@ -31,10 +38,18 @@ async (req,res)=>{
 });
 
 router.put("/updatefest/:id",validateUser,  
-// body("title","The length of Title should be between 3 and 30").isLength({min: 3, max: 30}),
-// body("sdate","Enter a valid start date.").custom(({req})=> req.body.sdate > Date.now()),
-// body("edate","Enter a valid end date.").custom(({req})=> req.body.edate >= req.body.sdate),
+body("title","The length of Title should be between 3 and 30").isLength({min: 3, max: 30}),
+body("sdate","Enter a valid start date.").custom(({req})=> req.body.sdate > Date.now()),
+body("edate","Enter a valid end date.").custom(({req})=> req.body.edate >= req.body.sdate),
 async(req,res)=>{
+
+
+    let errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     const {name,description,organisation,startdate,enddate,city,state} = req.body;
     const newfest = {}
 

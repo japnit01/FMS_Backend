@@ -3,14 +3,26 @@ let router = express.Router();
 let {body, validationResult} = require('express-validator');
 let Competitions = require('../models/competition');
 let Users = require('../models/user');
-let requireLogin = require('../middlewares/requireLogin');
+let validateUser = require('../middlewares/validateUser');
 
-router.get('/:festid/getCompetitions',async(req,res)=> {
+router.get('/:festid/getCompetitions',validateUser,async(req,res)=> {
     let allCompetitions = await Competitions.find({fest_id: req.params.festid});
     res.status(200).json({competitions : allCompetitions});
 })
 
-router.post('/:festid/add-competition',async(req,res)=> {
+router.post('/:festid/add-competition',
+    body("startTime","Enter a valid start time.").custom(({req})=> req.body.startTime > Date.now()),
+    body("startdate","Enter a valid end time.").custom(({req})=> req.body.endTime >= req.body.startTime),
+    body("sdate","Enter a valid start date.").custom(({req})=> req.body.startdate > Date.now()),
+    body("fee","Round number should be greater than or equal to 0").isFloat({min : 0}),
+    validateUser,async(req,res)=> {
+
+    let errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     let compDetails = req.body;
     compDetails.fest_id = req.params.festid;
 
@@ -22,7 +34,20 @@ router.post('/:festid/add-competition',async(req,res)=> {
     res.status(200).json({'new-competition':newComp});
 })
 
-router.put('/:festid/update-competition/:compid',async(req,res)=> {
+router.put('/:festid/update-competition/:compid',
+    body("startTime","Enter a valid start time.").custom(({req})=> req.body.startTime > Date.now()),
+    body("startdate","Enter a valid end time.").custom(({req})=> req.body.endTime >= req.body.startTime),
+    body("sdate","Enter a valid start date.").custom(({req})=> req.body.startdate > Date.now()),
+    body("fee","Round number should be greater than or equal to 0").isFloat({min : 0}),
+    validateUser,async(req,res)=> {
+
+        let errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+        }
+
+
     let updates = req.body;
     let updateData = {};
 
@@ -67,7 +92,7 @@ router.put('/:festid/update-competition/:compid',async(req,res)=> {
     res.status(200).json({'updated status':updatedComp});
 });
 
-router.delete('/:festid/delete-competition/:compid',async(req,res)=> {
+router.delete('/:festid/delete-competition/:compid',validateUser,async(req,res)=> {
     let deletedRecord = await Competitions.findOneAndDelete({fest_id: req.params.festid, _id: req.params.compid}).catch(err=> {
         return res.status(500).send('Error deleting the competition');
     })
@@ -75,7 +100,7 @@ router.delete('/:festid/delete-competition/:compid',async(req,res)=> {
     res.status(200).json({'deleted-record':deletedRecord});
 });
 
-router.post('/register-event/:compid',requireLogin,async(req,res) => {
+router.post('/register-event/:compid',validateUser,async(req,res) => {
     let record = await Users.findByIdAndUpdate(req.session.user_id,{$push : {registered_events : req.params.compid}}, { new: true}).catch(err => {
         return res.status(500).json({error : 'Unable to register for the event at the moment'});
     });
