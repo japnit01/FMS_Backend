@@ -15,6 +15,7 @@ app.use("/api/events/solo",require("./routes/solo"));
 app.use("/api/schedule",require("./routes/scheduler"));
 app.use("/api/voting",require("./routes/voting"))
 app.use("/api/test",require("./test/fakedata"))
+app.use('/api/events/results',require("./routes/results"))
 
 
 app.listen(port, () => {

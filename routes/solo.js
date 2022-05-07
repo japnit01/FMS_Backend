@@ -74,41 +74,42 @@ router.post('/:festid/:eventid/voting',
     res.status(200).json({success: true, 'Competitor Record': recordCompVote});
 });
 
-router.get('/:festid/:eventid/finish',
-    // body("score1","Enter a valid competitor score.").isFloat({min : 0}),
-    // body("score2","Enter a valid competitor score.").isFloat({min : 0}),
-    // body("comp1","Competitor does not exist. Please try again.").exists({checkFalsy: true}),
-    // body("comp2","Competitor does not exist. Please try again.").exists({checkFalsy: true}),
-    // body("round","Round number should be greater than 0").isFloat({min : 0}),
-    validateUser,async(req,res)=> {
+// router.get('/:festid/:eventid/finish',
+//     // body("score1","Enter a valid competitor score.").isFloat({min : 0}),
+//     // body("score2","Enter a valid competitor score.").isFloat({min : 0}),
+//     // body("comp1","Competitor does not exist. Please try again.").exists({checkFalsy: true}),
+//     // body("comp2","Competitor does not exist. Please try again.").exists({checkFalsy: true}),
+//     // body("round","Round number should be greater than 0").isFloat({min : 0}),
+//     validateUser,async(req,res)=> {
 
-    // let errors = validationResult(req);
+//     // let errors = validationResult(req);
 
-    // if (!errors.isEmpty()) {
-    //   return res.status(400).json({ errors: errors.array() });
-    // }let allCompetito
+//     // if (!errors.isEmpty()) {
+//     //   return res.status(400).json({ errors: errors.array() });
+//     // }let allCompetito
     
-    //finish button will be disabled after 1 click
+//     //finish button will be disabled after 1 click
 
-    let findWinners = await Competitor.aggregate([
-        { "$project": {
-            "user_id": 1,
-            "event_id": 1
-        }},
-        { "$sort": { "votes": -1 } }
-    ]).catch(err => {
-        return res.status(400).send("Can't fetch the winners")
-    })
+//     let findWinners = await Competitor.aggregate([
+//         { "$project": {
+//             "user_id": 1,
+//             "event_id": 1
+//         }},
+//         { "$sort": { "votes": -1 } },
+//         { "$limit": 3 }
+//     ]).catch(err => {
+//         return res.status(400).send("Can't fetch the winners")
+//     })
 
-    console.log(findWinners)
+//     console.log(findWinners)
 
-    let cleanDB = await Competitor.deleteMany({event_id: req.params.eventid}).catch(err => {
-        return res.status(400).send('Unable to clean the database');
-    })
+//     // let cleanDB = await Competitor.deleteMany({event_id: req.params.eventid}).catch(err => {
+//     //     return res.status(400).send('Unable to clean the database');
+//     // })
 
-    console.log(cleanDB);
+//     // console.log(cleanDB);
 
-    res.status(200).json({success: 1, winners: findWinners});
-})
+//     res.status(200).json({success: 1, winners: findWinners});
+// })
 
 module.exports = router;

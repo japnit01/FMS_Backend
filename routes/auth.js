@@ -37,7 +37,7 @@ router.post(
       let newUser = new Users(details);
       await newUser.save();
 
-        console.log('secret in auth: ',process.env.SECRET)
+        console.log('secret in auth: ',"secret") //process.env.SECRET)
         let jwtToken = jwt.sign({ id: newUser._id },"secret");
       res.status(200).json({ success: true, token: jwtToken });
     } catch (err) {
@@ -68,7 +68,7 @@ router.post(
         return res.status(404).json({ success: false, msg: "wrong password" });
       }
 
-      let jwtToken = jwt.sign({ id: user._id }, process.env.SECRET);
+      let jwtToken = jwt.sign({ id: user._id }, "secret") //process.env.SECRET);
       res.status(200).json({ success: true, token: jwtToken });
     } catch (err) {
       res.status(500).json({ success: false, err: err });

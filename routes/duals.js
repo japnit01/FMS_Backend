@@ -206,7 +206,6 @@ router.post('/:festid/:eventid/finish',
       return res.status(400).json({ errors: errors.array() });
     }
     
-    //finish button will be disabled after 1 click
 
     let {comp1, comp2, score1,score2, round} = req.body;
 
@@ -221,24 +220,7 @@ router.post('/:festid/:eventid/finish',
     })
 
 
-    let findWinners = await Competitor.aggregate([
-        { "$project": {
-            "user_id": 1,
-            "event_id": 1,
-            "competitorScore": 1,
-            "round_no": {"$abs" : "$round_no"}    ,
-            "length" : {"$size" : "$competitorScore"}
-        }},
-        { "$sort": { "round_no": -1,"length": -1} },
-        { "$limit": 3 }
-    ]).catch(err => {
-        return res.status(400).send("Can't fetch the winners")
-    })
-
-    console.log('winners: ',findWinners)
-
-
-    res.status(200).json({success: 1, winners: findWinners});
+    res.status(200).json({success: 1, currentRoundWinner: (score1 >= score2) ? comp1 : comp2});
 })
 
 module.exports = router;

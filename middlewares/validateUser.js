@@ -10,13 +10,13 @@ let validateUser = (req,res,next) => {
     }
 
     try {
-        let key = jwt.verify(token,process.env.SECRET);
+        let key = jwt.verify(token,"secret") //process.env.SECRET);
         req.user = key.id;
         
         next();
     } catch(err) {
         console.log('please check token')
-        console.log('secret in validateuser: ',process.env.SECRET)
+        console.log('secret in validateuser: ',"secret") //process.env.SECRET)
         return res.status(401).send('Either wrong credentials or internal error');
     }
 
