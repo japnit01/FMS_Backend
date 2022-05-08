@@ -256,8 +256,7 @@ router.post('/:festid/:eventid/finish',
             // roundNo: findWinners[0].round_no
             resultRecord.save();
         }
-        else
-        {
+        else {
             return res.status(404).send("Results have already been declared");
         }
 

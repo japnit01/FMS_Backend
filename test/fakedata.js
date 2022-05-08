@@ -4,11 +4,6 @@ let Users = require("../models/users");
 const { faker } = require('@faker-js/faker');
 const Scheduler = require('../models/scheduler')
 
-//Japnit
-// const festid = "6257240489b4df037c232946";
-// const eventid = "6257275589b4df037c232953";
-
-//Sarthak
 const festid = '6276d271a0fabbdbae101e57';
 const eventid = '62771574ba85f7df34cb474c'; 
 const password = "password";

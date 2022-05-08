@@ -7,6 +7,8 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const saltRounds = 10;
 
+
+
 router.post(
   "/signup",
   body("email", "Enter a valid email").isEmail(),

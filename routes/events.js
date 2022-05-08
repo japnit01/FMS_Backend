@@ -74,12 +74,8 @@ validateUser,async(req,res)=> {
         updateData.description = updates.description
     }
 
-    if(updates.date) {
-        updateData.date = updates.date
-    }
-
-    if(updates.guests) {
-        updateData.guests = updates.guests
+    if(updates.startdate) {
+        updateData.startdate = updates.startdate
     }
 
     if(updates.venue) {
