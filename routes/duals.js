@@ -7,6 +7,7 @@ let Users = require('../models/users');
 const { validationResult , body } = require("express-validator");
 const validateUser = require('../middlewares/validateUser')
 let Results = require('../models/results')
+let mongoose = require('mongoose')
 
 router.get('/:festid/:eventid/event-status',validateUser,async(req,res)=> {
 
@@ -219,7 +220,12 @@ router.post('/:festid/:eventid/finish',
         return res.status(400).send('Cannot update competitor score for the current match.');
     })
 
+    // let winningParticipants = await Competitor.find({event_id: req.params.eventid}).catch(err => {
+    //     return res.status(400).send('unable to fetch participants of this event')
+    // })
+
     let findWinners = await Competitor.aggregate([
+        { "$match" : {"event_id": mongoose.Types.ObjectId(req.params.eventid)}},
         { "$project": {
             "user_id": 1,
             "event_id": 1,
@@ -228,25 +234,29 @@ router.post('/:festid/:eventid/finish',
             "length" : {"$size" : "$competitorScore"}
         }},
         { "$sort": { "round_no": -1,"length": -1} },
-        { "$limit": 3 }
+        // { "$limit": 3 }
     ]).catch(err => {
         return res.status(400).send("Can't fetch the winners")
     })
 
+    console.log("findWinners: ",findWinners)
+
     let winnersUserIds = findWinners.map(winner => winner.user_id);
-    let winnersnames = await Users.find({name: {$in : winnersUserIds}}).catch(err => {
+    console.log(winnersUserIds)
+    let winnersnames = await Users.find({_id: {$in : winnersUserIds}},{name : 1}).catch(err => {
         return res.status(400).send('unable to fetch winner names')
     });
 
-    let resultRecord = new Results({fest_id: req.params.festid, event_id: req.params.eventid, roundNo: findWinners[0].round_no, winners: winnersnames});
-
+    let resultRecord = new Results({fest_id: req.params.festid, event_id: req.params.eventid, winners: winnersnames});
+    // roundNo: findWinners[0].round_no
     resultRecord.save();
 
     // let Winners = await Results.insertMany( ).catch(err => {
     //     return res.status(400).send('unable to store winners')
     // })
 
-    res.status(200).json({success: 1, currentRoundWinner: (score1 >= score2) ? comp1 : comp2});
+    res.status(200).json({success: 1, winners: findWinners});
+    // currentRoundWinner: (score1 >= score2) ? comp1 : comp2
 })
 
 module.exports = router;

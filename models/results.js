@@ -8,6 +8,7 @@ let resultsSchema = new mongoose.Schema({
     },
     event_id: {
         type:mongoose.Schema.Types.ObjectId,
+        unique: true,
         ref: 'competition'
     },
     roundNo: {
