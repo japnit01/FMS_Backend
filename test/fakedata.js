@@ -4,8 +4,18 @@ let Users = require("../models/users");
 const { faker } = require('@faker-js/faker');
 const Scheduler = require('../models/scheduler')
 
+<<<<<<< HEAD
 const festid = '6276d271a0fabbdbae101e57';
 const eventid = '62771574ba85f7df34cb474c'; 
+=======
+//Japnit
+// const festid = "6257240489b4df037c232946";
+// const eventid = "6257275589b4df037c232953";
+
+//Sarthak
+const festid = '6276a071d69b38de24879920';
+const eventid = '6276ac0e9aaa4ae8cff2eacf'; 
+>>>>>>> d660838be049201200bb1fe3029101cae69afcb1
 const password = "password";
 const count = 4;
 
