@@ -5,6 +5,9 @@ let Competitor = require('../models/competitor');
 let Users = require('../models/users');
 const { validationResult , body } = require("express-validator");
 const validateUser = require('../middlewares/validateUser')
+const mongoose = require('mongoose');
+let Results = require('../models/results')
+
 
 router.get('/:festid/:eventid/event-status',async(req, res)=> {
 
@@ -74,42 +77,41 @@ router.post('/:festid/:eventid/voting',
     res.status(200).json({success: true, 'Competitor Record': recordCompVote});
 });
 
-// router.get('/:festid/:eventid/finish',
-//     // body("score1","Enter a valid competitor score.").isFloat({min : 0}),
-//     // body("score2","Enter a valid competitor score.").isFloat({min : 0}),
-//     // body("comp1","Competitor does not exist. Please try again.").exists({checkFalsy: true}),
-//     // body("comp2","Competitor does not exist. Please try again.").exists({checkFalsy: true}),
-//     // body("round","Round number should be greater than 0").isFloat({min : 0}),
-//     validateUser,async(req,res)=> {
+router.get("/:festid/:eventid/finish", validateUser, async (req, res) => {
+    let findWinners = []
 
-//     // let errors = validationResult(req);
+    findWinners = await Competitor.aggregate([
+        { "$match": { "event_id": mongoose.Types.ObjectId(req.params.eventid) } },
+        {
+            "$project": {
+                "user_id": 1,
+                "event_id": 1
+            }
+        },
+        { "$sort": { "votes": -1 } },
+    ]).catch(err => {
+        return res.status(400).send("Can't fetch the winners")
+    })
+    let winnersUserIds = findWinners.map(winner => winner.user_id);
+    // console.log(winnersUserIds)
+    let winnersnames = await Users.find({ _id: { $in: winnersUserIds } }, { name: 1 }).catch(err => {
+        return res.status(400).send('unable to fetch winner names')
+    });
 
-//     // if (!errors.isEmpty()) {
-//     //   return res.status(400).json({ errors: errors.array() });
-//     // }let allCompetito
-    
-//     //finish button will be disabled after 1 click
+    let findresult = await Results.findOne({ event_id: req.params.eventid })
+    console.log(findresult)
+    if (!findresult) {
+        let resultRecord = new Results({ fest_id: req.params.festid, event_id: req.params.eventid, winners: winnersnames });
+        // roundNo: findWinners[0].round_no
+        resultRecord.save();
+    }
+    else {
+        return res.status(404).send("Results have already been declared");
+    }
 
-//     let findWinners = await Competitor.aggregate([
-//         { "$project": {
-//             "user_id": 1,
-//             "event_id": 1
-//         }},
-//         { "$sort": { "votes": -1 } },
-//         { "$limit": 3 }
-//     ]).catch(err => {
-//         return res.status(400).send("Can't fetch the winners")
-//     })
+    console.log(findWinners)
 
-//     console.log(findWinners)
-
-//     // let cleanDB = await Competitor.deleteMany({event_id: req.params.eventid}).catch(err => {
-//     //     return res.status(400).send('Unable to clean the database');
-//     // })
-
-//     // console.log(cleanDB);
-
-//     res.status(200).json({success: 1, winners: findWinners});
-// })
+    res.status(200).json({ success: 1, winners: findWinners });
+})
 
 module.exports = router;
