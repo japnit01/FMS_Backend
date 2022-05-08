@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 
-let dbUrl = "mongodb://localhost/festdb";
-// process.env.DB_URL ;
+let dbUrl = process.env.DB_URL ;
+// "mongodb://localhost/festdb";
+
 
 
 const connecttomongo = async() =>{

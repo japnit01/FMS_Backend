@@ -5,6 +5,19 @@ const validateUser = require('../middlewares/validateUser')
 let Competitor = require('../models/competitor');
 let Results = require('../models/results')
 
+router.get("/:festid/:eventid/checkstatus",validateUser,async (req, res) => {
+    let findresult = await Results.findOne({ event_id: req.params.eventid })
+
+    if(findresult)
+    {
+        return res.status(200).json({"declared":true})
+    }
+    else
+    {
+        return res.status(200).json({"declared":false})
+    }
+})
+
 router.get("/:event-type/:festid/:eventid",validateUser,async(req,res) => {
 
     let findWinners = []
