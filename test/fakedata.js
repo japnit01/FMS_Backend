@@ -10,7 +10,7 @@ const Scheduler = require('../models/scheduler')
 
 //Sarthak
 const festid = '6276a071d69b38de24879920';
-const eventid = '6276a2f59aaa4ae8cff2eac7'; 
+const eventid = '6276ac0e9aaa4ae8cff2eacf'; 
 const password = "password";
 const count = 4;
 
