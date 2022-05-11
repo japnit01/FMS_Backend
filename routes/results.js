@@ -5,9 +5,20 @@ const validateUser = require('../middlewares/validateUser')
 let Competitor = require('../models/competitor');
 let Results = require('../models/results')
 
-router.get("/r",validateUser,async(req,res) => {
-    res.send("Got it")
-});
+router.get('/r',(req,res)=>{
+    res.send("hi")
+})
+
+
+router.get("/:festid/:eventid",validateUser,async(req,res)=>{
+    let findresult = await Results.findOne({ event_id: req.params.eventid })
+
+    if(findresult) {
+        return res.status(200).json({result:findresult.winners})
+    }
+   return res.status(404).send("Result not declared");
+})
+
 
 router.get("/:festid/:eventid/checkstatus",validateUser,async (req, res) => {
     let findresult = await Results.findOne({ event_id: req.params.eventid })
@@ -19,13 +30,6 @@ router.get("/:festid/:eventid/checkstatus",validateUser,async (req, res) => {
     else
     {
         return res.status(200).json({"declared":false})
-    }
-})
-
-router.get("/:eventid",validateUser,async(req,res)=>{
-    let findresult = await Results.findOne({ event_id: req.params.eventid })
-    if(findresult) {
-        res.send(200).json({result:findresult.winners})
     }
 })
 

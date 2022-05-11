@@ -7,8 +7,6 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const saltRounds = 10;
 
-
-
 router.post(
   "/signup",
   body("email", "Enter a valid email").isEmail(),
@@ -51,14 +49,14 @@ router.post(
 
 router.post(
   "/login",
-  // body("email", "Enter a valid email").isEmail(),
+  body("email", "Enter a valid email").isEmail(),
   // body("password", "Password must have 5 characters").isLength({ min: 5 }),
   async (req, res) => {
-    // let errors = validationResult(req);
+    let errors = validationResult(req);
 
-    // if (!errors.isEmpty()) {
-    //   return res.status(400).json({ errors: errors.array() });
-    // }
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
     try {
       let user = await Users.findOne({ email: req.body.email }).catch(err => {
