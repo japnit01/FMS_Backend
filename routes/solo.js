@@ -85,7 +85,8 @@ router.get("/:festid/:eventid/finish", validateUser, async (req, res) => {
         {
             "$project": {
                 "user_id": 1,
-                "event_id": 1
+                "event_id": 1,
+                "votes": 1
             }
         },
         { "$sort": { "votes": -1 } },

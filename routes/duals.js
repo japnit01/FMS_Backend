@@ -210,14 +210,14 @@ router.post('/:festid/:eventid/finish',
 
         let { comp1, comp2, score1, score2, round } = req.body;
 
-    let rec1 = await Competitor.updateOne({user_id: (score1 > score2) ? comp2 : comp1,  event_id: req.params.event_id}, { $set : { round_no : -round }, $push : {competitorScore :  (score1 > score2) ? score2 : score1}}).catch(err => {
-        return res.status(400).send('Cannot update competitor score for the current match.');
-    })
-    
+        let rec1 = await Competitor.updateOne({ user_id: (score1 > score2) ? comp2 : comp1 }, { $set: { round_no: -round }, $push: { competitorScore: (score1 > score2) ? score2 : score1 } }).catch(err => {
+            return res.status(400).send('Cannot update competitor score for the current match.');
+        })
 
-    let rec2 = await Competitor.updateOne({user_id: (score1 > score2) ? comp1 : comp2, event_id: req.params.event_id}, { $set : { round_no : (round+1)}, $push : {competitorScore : (score1 > score2) ? score1 : score2}}).catch(err => {
-        return res.status(400).send('Cannot update competitor score for the current match.');
-    })
+
+        let rec2 = await Competitor.updateOne({ user_id: (score1 > score2) ? comp1 : comp2 }, { $set: { round_no: (round + 1) }, $push: { competitorScore: (score1 > score2) ? score1 : score2 } }).catch(err => {
+            return res.status(400).send('Cannot update competitor score for the current match.');
+        })
 
 
         // let findWinners = await Competitor.aggregate([
@@ -233,10 +233,10 @@ router.post('/:festid/:eventid/finish',
                     "event_id": 1,
                     "competitorScore": 1,
                     "round_no": { "$abs": "$round_no" },
-                    "length": { "$size": "$competitorScore" }
+                    "lastElement": { "$arrayElemAt": ["$competitorScore",-1] }
                 }
             },
-            { "$sort": { "round_no": -1, "length": -1 } },
+            { "$sort": { "round_no": -1, "lastElement": -1 } },
         ]).catch(err => {
             return res.status(400).send("Can't fetch the winners")
         })
@@ -245,9 +245,20 @@ router.post('/:festid/:eventid/finish',
 
         let winnersUserIds = findWinners.map(winner => winner.user_id);
         // console.log(winnersUserIds)
-        let winnersnames = await Users.find({ _id: { $in: winnersUserIds } }, { name: 1 }).catch(err => {
-            return res.status(400).send('unable to fetch winner names')
-        });
+        // let winnersnames = await Users.aggregate([
+        //     { "$match": {"_id": {"$in": winnersUserIds}}}
+        // ])
+        let winnersnames = [];
+        winnersUserIds.map((wui) => {
+            let name = await Users.findOne({_id : wui}).select('name').catch(err => {
+                return res.status(400).send('cannot find user')
+            })
+
+            winnersnames.push(name)
+        })
+        // let winnersnames = await Users.find({ _id: { $in: winnersUserIds } }).select('name').catch(err => {
+        //     return res.status(400).send('unable to fetch winner names')
+        // });
 
         let findresult = await Results.findOne({ event_id: req.params.eventid })
         console.log(findresult)
