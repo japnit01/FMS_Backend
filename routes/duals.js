@@ -120,18 +120,19 @@ router.post('/:festid/:eventid/nextMatch',
 
         //next match button will be disabled after 1 click
         let { comp1, comp2, score1, score2, round } = req.body;
-        // console.log(req.body)
+        score1 = parseInt(score1)
+        score2 = parseInt(score2)
+        // console.log(comp1,comp2,score1,score2)
 
 
-        let rec1 = await Competitor.updateOne({ user_id: (score1 > score2) ? comp2 : comp1 }, { $set: { round_no: -round }, $push: { competitorScore: (score1 > score2) ? score2 : score1 } }).catch(err => {
+        let rec1 = await Competitor.updateOne({ user_id: (score1 > score2) ? comp2 : comp1,event_id: req.params.eventid }, { $set: { round_no: -round }, $push: { competitorScore: (score1 > score2) ? score2 : score1 } }).catch(err => {
             return res.status(400).send('Cannot update competitor score for the current match.');
         })
 
 
-        let rec2 = await Competitor.updateOne({ user_id: (score1 > score2) ? comp1 : comp2 }, { $set: { round_no: (round + 1) }, $push: { competitorScore: (score1 > score2) ? score1 : score2 } }).catch(err => {
+        let rec2 = await Competitor.updateOne({ user_id: (score1 > score2) ? comp1 : comp2,event_id: req.params.eventid }, { $set: { round_no: (round + 1) }, $push: { competitorScore: (score1 > score2) ? score1 : score2 } }).catch(err => {
             return res.status(400).send('Cannot update competitor score for the current match.');
         })
-
 
         res.status(200).json({ success: true, winner: (score1 > score2) ? comp1 : comp2 });
     });
@@ -151,13 +152,14 @@ router.post('/:festid/:eventid/nextRound',
         }
 
         let { comp1, comp2, score1, score2, round } = req.body;
-
-        let rec1 = await Competitor.updateOne({ user_id: (score1 > score2) ? comp2 : comp1 }, { $set: { round_no: -round }, $push: { competitorScore: (score1 > score2) ? score2 : score1 } }).catch(err => {
+        score1 = parseInt(score1)
+        score2 = parseInt(score2)
+        let rec1 = await Competitor.updateOne({ user_id: (score1 > score2) ? comp2 : comp1,event_id: req.params.eventid }, { $set: { round_no: -round }, $push: { competitorScore: (score1 > score2) ? score2 : score1 } }).catch(err => {
             return res.status(400).send('Cannot update competitor score for the current match.');
         })
 
 
-        let rec2 = await Competitor.updateOne({ user_id: (score1 > score2) ? comp1 : comp2 }, { $set: { round_no: (round + 1) }, $push: { competitorScore: (score1 > score2) ? score1 : score2 } }).catch(err => {
+        let rec2 = await Competitor.updateOne({ user_id: (score1 > score2) ? comp1 : comp2,event_id: req.params.eventid }, { $set: { round_no: (round + 1) }, $push: { competitorScore: (score1 > score2) ? score1 : score2 } }).catch(err => {
             return res.status(400).send('Cannot update competitor score for the current match.');
         })
 
@@ -208,24 +210,20 @@ router.post('/:festid/:eventid/finish',
         }
 
 
-        let { comp1, comp2, score1, score2, round } = req.body;
-
-    let rec1 = await Competitor.updateOne({user_id: (score1 > score2) ? comp2 : comp1,  event_id: req.params.event_id}, { $set : { round_no : -round }, $push : {competitorScore :  (score1 > score2) ? score2 : score1}}).catch(err => {
+    let { comp1, comp2, score1, score2, round } = req.body;
+    score1 = parseInt(score1)
+    score2 = parseInt(score2)
+    console.log(comp1,comp2,score1,score2,round)
+    let rec1 = await Competitor.updateOne({user_id: (score1 > score2) ? comp2 : comp1,  event_id: req.params.eventid}, { $set : { round_no : -round }, $push : {competitorScore :  (score1 > score2) ? score2 : score1}}).catch(err => {
         return res.status(400).send('Cannot update competitor score for the current match.');
     })
     
 
-    let rec2 = await Competitor.updateOne({user_id: (score1 > score2) ? comp1 : comp2, event_id: req.params.event_id}, { $set : { round_no : (round+1)}, $push : {competitorScore : (score1 > score2) ? score1 : score2}}).catch(err => {
+    let rec2 = await Competitor.updateOne({user_id: (score1 > score2) ? comp1 : comp2, event_id: req.params.eventid}, { $set : { round_no : (round+1)}, $push : {competitorScore : (score1 > score2) ? score1 : score2}}).catch(err => {
         return res.status(400).send('Cannot update competitor score for the current match.');
     })
-
-
-        // let findWinners = await Competitor.aggregate([
-        //     { $match: { event_id: req.params.eventid } },
-        // ]).catch(err => {
-        //     return res.status(400).send("Can't fetch the winners")
-        // })
-        let findWinners = await Competitor.aggregate([
+    console.log(rec1,rec2);
+    let findWinners = await Competitor.aggregate([
             { "$match": { "event_id": mongoose.Types.ObjectId(req.params.eventid) } },
             {
                 "$project": {
@@ -233,35 +231,44 @@ router.post('/:festid/:eventid/finish',
                     "event_id": 1,
                     "competitorScore": 1,
                     "round_no": { "$abs": "$round_no" },
-                    "length": { "$size": "$competitorScore" }
+                    "lastElement": { "$arrayElemAt": ["$competitorScore",-1] }                
                 }
             },
-            { "$sort": { "round_no": -1, "length": -1 } },
+            { "$sort": { "round_no": -1, "lastElement": -1 } },
         ]).catch(err => {
             return res.status(400).send("Can't fetch the winners")
         })
 
-        // console.log("findWinners: ", findWinners)
+        console.log("findWinners: ", findWinners)
 
         let winnersUserIds = findWinners.map(winner => winner.user_id);
-        // console.log(winnersUserIds)
-        let winnersnames = await Users.find({ _id: { $in: winnersUserIds } }, { name: 1 }).catch(err => {
-            return res.status(400).send('unable to fetch winner names')
-        });
+        console.log(winnersUserIds)
 
+        const winnersnames = await getwinnername(winnersUserIds)
+      
         let findresult = await Results.findOne({ event_id: req.params.eventid })
-        console.log(findresult)
+        console.log()
         if (!findresult) {
             let resultRecord = new Results({ fest_id: req.params.festid, event_id: req.params.eventid, winners: winnersnames });
-            // roundNo: findWinners[0].round_no
-            resultRecord.save();
+            // roundNo: find
+            await resultRecord.save();
+            console.log(resultRecord);
         }
         else {
             return res.status(404).send("Results have already been declared");
         }
 
 
-        res.status(200).json({ success: 1, winners: findWinners });
+        res.status(200).json({ success: 1, winners: findWinners,winnernames:winnersnames });
     })
 
+    const getwinnername = async(winnersUserIds) =>{
+        let winnersnames = [];
+        winnersUserIds.map(async (wui) => {
+            let name = await Users.findOne({_id : wui},{name:1})
+            winnersnames.push(name)
+        })
+
+        return winnersnames;
+    }
 module.exports = router;
