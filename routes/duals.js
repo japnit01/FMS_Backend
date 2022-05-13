@@ -15,7 +15,7 @@ router.get('/:festid/:eventid/event-status', validateUser, async (req, res) => {
         return res.status(400).send('unable to fetch competitors');
     })
 
-    let findDistinct = await Competitor.find({}).sort('round_no').catch(err => {
+    let findDistinct = await Competitor.find({ event_id: req.params.eventid }).sort('round_no').catch(err => {
         return res.status(400).send('error finding distinct records.');
     })
 
@@ -239,10 +239,10 @@ router.post('/:festid/:eventid/finish',
             return res.status(400).send("Can't fetch the winners")
         })
 
-        console.log("findWinners: ", findWinners)
+        // console.log("findWinners: ", findWinners)
 
         let winnersUserIds = findWinners.map(winner => winner.user_id);
-        console.log(winnersUserIds)
+        // console.log(winnersUserIds)
 
         const winnersnames = await getwinnername(winnersUserIds)
       
@@ -252,7 +252,7 @@ router.post('/:festid/:eventid/finish',
             let resultRecord = new Results({ fest_id: req.params.festid, event_id: req.params.eventid, winners: winnersnames });
             // roundNo: find
             await resultRecord.save();
-            console.log(resultRecord);
+            // console.log(resultRecord);
         }
         else {
             return res.status(404).send("Results have already been declared");

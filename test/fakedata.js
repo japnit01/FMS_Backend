@@ -6,10 +6,9 @@ const Scheduler = require('../models/scheduler')
 let Competitor = require('../models/competitor');
 let Results = require('../models/results')
 
-
 //Sarthak
-const festid = '627bf811d4a36a5375b7b9c8';
-const eventid = '627c0c16e0a364e25f908091'; 
+const festid = '627de9a4ae774990f5584c9c';
+const eventid = '627ded6ef3dec2c07e643001'; 
 
 const password = "password";
 const count = 4;
