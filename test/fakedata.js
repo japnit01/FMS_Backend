@@ -3,10 +3,12 @@ let router = express.Router();
 let Users = require("../models/users");
 const { faker } = require('@faker-js/faker');
 const Scheduler = require('../models/scheduler')
+let Competitor = require('../models/competitor');
+let Results = require('../models/results')
 
 //Sarthak
-const festid = '627791bb5c1b901230bfbce2';
-const eventid = '6277b8485c1b901230bfbd76'; 
+const festid = '627de9a4ae774990f5584c9c';
+const eventid = '627ded6ef3dec2c07e643001'; 
 
 const password = "password";
 const count = 4;
@@ -64,6 +66,13 @@ router.delete("/deletefakeuser", async (req, res) => {
     let user = await Users.deleteMany({ name: { $nin: ["Sarthak", "Japnit Singh", "Gurtej Singh"] } })
     res.json(user);
 });
+
+router.delete("/resetevent/:eventid",async(req,res)=>{
+    let competitor = await Competitor.deleteMany({event_id: req.params.eventid});
+    let result = await Results.deleteOne({event_id: req.params.eventid});
+
+    res.status(200).json({competitor,result})
+})
 
 
 module.exports = router;

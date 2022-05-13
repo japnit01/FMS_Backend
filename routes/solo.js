@@ -78,9 +78,7 @@ router.post('/:festid/:eventid/voting',
 });
 
 router.get("/:festid/:eventid/finish", validateUser, async (req, res) => {
-    let findWinners = []
-
-    findWinners = await Competitor.aggregate([
+    let findWinners = await Competitor.aggregate([
         { "$match": { "event_id": mongoose.Types.ObjectId(req.params.eventid) } },
         {
             "$project": {
@@ -93,18 +91,20 @@ router.get("/:festid/:eventid/finish", validateUser, async (req, res) => {
     ]).catch(err => {
         return res.status(400).send("Can't fetch the winners")
     })
+
+    console.log(findWinners)
     let winnersUserIds = findWinners.map(winner => winner.user_id);
     // console.log(winnersUserIds)
-    let winnersnames = await Users.find({ _id: { $in: winnersUserIds } }, { name: 1 }).catch(err => {
-        return res.status(400).send('unable to fetch winner names')
-    });
+    const winnersnames = await getwinnername(winnersUserIds)
+
 
     let findresult = await Results.findOne({ event_id: req.params.eventid })
-    console.log(findresult)
+    // console.log(findresult)
     if (!findresult) {
         let resultRecord = new Results({ fest_id: req.params.festid, event_id: req.params.eventid, winners: winnersnames });
         // roundNo: findWinners[0].round_no
         resultRecord.save();
+        console.log(resultRecord);
     }
     else {
         return res.status(404).send("Results have already been declared");
@@ -114,5 +114,15 @@ router.get("/:festid/:eventid/finish", validateUser, async (req, res) => {
 
     res.status(200).json({ success: 1, winners: findWinners });
 })
+
+const getwinnername = async(winnersUserIds) =>{
+    let winnersnames = [];
+    winnersUserIds.map(async (wui) => {
+        let name = await Users.findOne({_id : wui},{name:1})
+        winnersnames.push(name)
+    })
+
+    return winnersnames;
+}
 
 module.exports = router;
