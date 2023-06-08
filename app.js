@@ -19,7 +19,7 @@ app.use("/api/voting",require("./routes/voting"))
 app.use("/api/test",require("./test/fakedata"))
 
 
-
+// mongodb+srv://newuser1:KoNAYCWbohIUIXg3@cluster0.toxtd.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`)
 })

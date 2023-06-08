@@ -34,11 +34,12 @@ router.post(
       let hash = await bcrypt.hash(req.body.password, salt);
       let details = req.body;
       details.password = hash;
+      
       let newUser = new Users(details);
       await newUser.save();
 
         console.log('secret in auth: ',"secret") //process.env.SECRET)
-        let jwtToken = jwt.sign({ id: newUser._id },"secret");
+      let jwtToken = jwt.sign({ id: newUser._id },"secret");
       res.status(200).json({ success: true, token: jwtToken });
     } catch (err) {
       console.log(err);
