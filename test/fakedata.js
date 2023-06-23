@@ -7,11 +7,11 @@ let Competitor = require('../models/competitor');
 let Results = require('../models/results')
 
 //Sarthak
-const festid = '627de9a4ae774990f5584c9c';
-const eventid = '627ded6ef3dec2c07e643001'; 
+const festid = '6488c5ee53f27fd548b5981f';
+const eventid = '6488cc6aa0d4525fa3098778'; 
 
 const password = "password";
-const count = 4;
+const count = 7;
 
 function generateRandom(min = 18, max = 24) {
     let difference = max - min;
